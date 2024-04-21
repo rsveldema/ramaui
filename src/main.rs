@@ -1,7 +1,14 @@
 use std::env;
 
-mod xaml_reader;
 mod ui_elements;
+mod xaml_reader;
+mod button;
+mod label;
+mod text_block;
+mod content_page;
+mod window;
+mod grid;
+mod unknown_ui_elt;
 
 fn usage() {
     let args: Vec<String> = env::args().collect();

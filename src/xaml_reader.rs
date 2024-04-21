@@ -4,21 +4,8 @@ use std::rc::Rc;
 use std::sync::Mutex;
 use xml::reader::{EventReader, XmlEvent};
 
-use crate::ui_elements::{Button, ColumnDefinition, ContentPage, Grid, Grid_ColumnDefinitions, Grid_RowDefinitions, Label, RowDefinition, TextBlock, UIElementRef, Unknown, Window};
+use crate::{button::Button, content_page::ContentPage, grid::{ColumnDefinition, Grid, GridColumnDefinitions, GridRowDefinitions, RowDefinition}, label::Label, text_block::TextBlock, ui_elements::UIElementRef, unknown_ui_elt::Unknown, window::Window};
 
-
-fn get_attribute(
-    attributes: &Vec<xml::attribute::OwnedAttribute>,
-    name: &str,
-    default_str: &str,
-) -> String {
-    for a in attributes.iter() {
-        if a.name.local_name == name {
-            return a.value.to_string();
-        }
-    }
-    default_str.to_string()
-}
 
 fn create_ui_element(name: &str, attributes: Vec<xml::attribute::OwnedAttribute>) -> UIElementRef {
     match name {
@@ -27,8 +14,8 @@ fn create_ui_element(name: &str, attributes: Vec<xml::attribute::OwnedAttribute>
         "Button" => Rc::new(Mutex::new(Button::new(attributes))),
         "Window" => Rc::new(Mutex::new(Window::new(attributes))),
         "Grid" => Rc::new(Mutex::new(Grid::new(attributes))),
-        "Grid.ColumnDefinitions" => Rc::new(Mutex::new(Grid_ColumnDefinitions::new(attributes))),
-        "Grid.RowDefinitions" => Rc::new(Mutex::new(Grid_RowDefinitions::new(attributes))),
+        "Grid.ColumnDefinitions" => Rc::new(Mutex::new(GridColumnDefinitions::new(attributes))),
+        "Grid.RowDefinitions" => Rc::new(Mutex::new(GridRowDefinitions::new(attributes))),
         "ColumnDefinition" => Rc::new(Mutex::new(ColumnDefinition::new(attributes))),
         "RowDefinition" => Rc::new(Mutex::new(RowDefinition::new(attributes))),
         "TextBlock" => Rc::new(Mutex::new(TextBlock::new(attributes))),
