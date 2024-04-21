@@ -40,6 +40,10 @@ impl UIChildren {
     }
 }
 
+pub struct Unknown {
+    children: UIChildren,
+}
+
 pub struct ContentPage {
     title: String,
     children: UIChildren,
@@ -213,6 +217,18 @@ impl UIElement for ColumnDefinition {
     fn add_content_string(&mut self, s: String) {}
 }
 
+
+impl RowDefinition {
+    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> RowDefinition {
+        RowDefinition {
+            width: get_attribute(&attributes, "Width", ""),
+            height: get_attribute(&attributes, "Height", ""),
+            children: UIChildren {
+                children: Vec::new(),
+            },
+        }
+    }
+}
 impl UIElement for RowDefinition {
     fn get_name(&self) -> &'static str {
         "RowDefinition"
@@ -266,6 +282,35 @@ impl UIElement for TextBlock {
 }
 
 
+impl Unknown {
+    pub fn new(_: Vec<xml::attribute::OwnedAttribute>) -> Unknown {
+        Unknown {
+            children: UIChildren {
+                children: Vec::new(),
+            },
+        }
+    }
+}
+
+
+impl UIElement for Unknown {
+    fn get_name(&self) -> &'static str {
+        "UnknownElementType"
+    }
+    fn add_child(&mut self, child: UIElementRef) {
+        self.children.add_child(child)
+    }
+    fn dump(&self, indent: i32) {
+        println!(
+            "{}DUMP: {}",
+            tabs(indent),
+            self.get_name()
+        );
+        self.children.dump(indent);
+    }
+    fn add_content_string(&mut self, _: String) {}
+}
+
 impl Label {
     pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Label {
         Label {
@@ -293,7 +338,7 @@ impl UIElement for Label {
         );
         self.children.dump(indent);
     }
-    fn add_content_string(&mut self, s: String) {}
+    fn add_content_string(&mut self, s: String) { self.content = s; }
 }
 
 
@@ -324,7 +369,7 @@ impl UIElement for ContentPage {
         );
         self.children.dump(indent);
     }
-    fn add_content_string(&mut self, s: String) {}
+    fn add_content_string(&mut self, _: String) {}
 }
 
 

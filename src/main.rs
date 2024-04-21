@@ -1,7 +1,7 @@
 use std::env;
 
 mod xaml_reader;
-mod UIElements;
+mod ui_elements;
 
 fn usage() {
     let args: Vec<String> = env::args().collect();
@@ -13,7 +13,6 @@ fn usage() {
 }
 
 fn main() {
-    
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         usage();
