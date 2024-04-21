@@ -2,6 +2,7 @@ use std::{rc::Rc, sync::Mutex};
 
 pub type UIElementRef = Rc<Mutex<dyn UIElement>>;
 
+// utility func for extracting props from XAML
 fn get_attribute(
     attributes: &Vec<xml::attribute::OwnedAttribute>,
     name: &str,
