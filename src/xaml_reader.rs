@@ -27,9 +27,9 @@ pub fn read_xaml(filename: &String) -> Result<UIElementRef, std::io::Error> {
     println!("Parsing: {}", filename);
 
     let file = File::open(filename)?;
-    let file = BufReader::new(file); // Buffering is important for performance
+    let file_reader = BufReader::new(file); // Buffering is important for performance
 
-    let parser = EventReader::new(file);
+    let parser = EventReader::new(file_reader);
     let mut depth = 0;
 
     let mut parse_stack: Vec<UIElementRef> = Vec::new();
@@ -78,6 +78,7 @@ pub fn read_xaml(filename: &String) -> Result<UIElementRef, std::io::Error> {
     let last = parse_stack.last();
     Ok(last.unwrap().clone())
 }
+
 
 
 #[cfg(test)]
