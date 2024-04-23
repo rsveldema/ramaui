@@ -1,4 +1,4 @@
-use crate::ui_elements::{tabs, UICommon, UIElement, UIElementRef, get_attribute};
+use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct Grid {
     common: UICommon,
@@ -37,17 +37,22 @@ impl UIElement for Grid {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
-    fn get_name(&self) -> &'static str {
+    fn get_ui_type_name(&self) -> &'static str {
         "Grid"
     }
     fn add_child(&mut self, child: UIElementRef) {
         self.common.add_child(child)
     }
     fn dump(&self, indent: i32) {
-        println!("{}DUMP: {}", tabs(indent), self.get_name());
+        println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, _: String) {}
+    
+    fn visit(&self, visitor: &mut dyn Visitor) {
+        self.common.visit(visitor);
+        visitor.visit_grid(self);
+    }
 }
 
 impl GridColumnDefinitions {
@@ -62,17 +67,22 @@ impl UIElement for GridColumnDefinitions {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
-    fn get_name(&self) -> &'static str {
+    fn get_ui_type_name(&self) -> &'static str {
         "Grid_ColumnDefinitions"
     }
     fn add_child(&mut self, child: UIElementRef) {
         self.common.add_child(child)
     }
     fn dump(&self, indent: i32) {
-        println!("{}DUMP: {}", tabs(indent), self.get_name());
+        println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, _: String) {}
+
+    fn visit(&self, visitor: &mut dyn Visitor) {
+        self.common.visit(visitor);
+        visitor.visit_grid_cols(self);
+    }
 }
 
 impl GridRowDefinitions {
@@ -87,17 +97,22 @@ impl UIElement for GridRowDefinitions {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
-    fn get_name(&self) -> &'static str {
+    fn get_ui_type_name(&self) -> &'static str {
         "Grid_RowDefinitions"
     }
     fn add_child(&mut self, child: UIElementRef) {
         self.common.add_child(child)
     }
     fn dump(&self, indent: i32) {
-        println!("{}DUMP: {}", tabs(indent), self.get_name());
+        println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, _: String) {}
+
+    fn visit(&self, visitor: &mut dyn Visitor) {
+        self.common.visit(visitor);
+        visitor.visit_grid_row(self);
+    }
 }
 
 impl ColumnDefinition {
@@ -111,17 +126,22 @@ impl UIElement for ColumnDefinition {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
-    fn get_name(&self) -> &'static str {
+    fn get_ui_type_name(&self) -> &'static str {
         "ColumnDefinition"
     }
     fn add_child(&mut self, child: UIElementRef) {
         self.common.add_child(child)
     }
     fn dump(&self, indent: i32) {
-        println!("{}DUMP: {}", tabs(indent), self.get_name());
+        println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, _: String) {}
+
+    fn visit(&self, visitor: &mut dyn Visitor) {
+        self.common.visit(visitor);
+        visitor.visit_col_def(self);
+    }
 }
 
 impl RowDefinition {
@@ -135,15 +155,20 @@ impl UIElement for RowDefinition {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
-    fn get_name(&self) -> &'static str {
+    fn get_ui_type_name(&self) -> &'static str {
         "RowDefinition"
     }
     fn add_child(&mut self, child: UIElementRef) {
         self.common.add_child(child)
     }
     fn dump(&self, indent: i32) {
-        println!("{}DUMP: {}", tabs(indent), self.get_name());
+        println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, _: String) {}
+
+    fn visit(&self, visitor: &mut dyn Visitor) {
+        self.common.visit(visitor);
+        visitor.visit_row_def(self);
+    }
 }

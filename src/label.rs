@@ -1,4 +1,4 @@
-use crate::ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef};
+use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct Label {
     content: String,
@@ -18,7 +18,7 @@ impl UIElement for Label {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
-    fn get_name(&self) -> &'static str {
+    fn get_ui_type_name(&self) -> &'static str {
         "Label"
     }
     fn add_child(&mut self, child: UIElementRef) {
@@ -28,12 +28,17 @@ impl UIElement for Label {
         println!(
             "{}DUMP: {} - content:{}",
             tabs(indent),
-            self.get_name(),
+            self.get_ui_type_name(),
             self.content
         );
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, s: String) {
         self.content = s;
+    }
+    
+    fn visit(&self, visitor: &mut dyn Visitor) {
+        self.common.visit(visitor);
+        visitor.visit_label(self);
     }
 }

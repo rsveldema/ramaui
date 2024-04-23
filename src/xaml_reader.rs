@@ -91,7 +91,7 @@ mod tests {
         if let Result::Ok(t) = tree {
             println!("TREE ---> ");
             let tree = t.lock().unwrap();
-            assert!(tree.get_name() == "Window");
+            assert!(tree.get_ui_type_name() == "Window");
             tree.dump(0)
             
         } else {
