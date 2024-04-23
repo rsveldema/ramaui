@@ -1,4 +1,7 @@
+use std::borrow::{Borrow, BorrowMut};
 use std::env;
+use std::ops::Deref;
+use std::sync::MutexGuard;
 
 mod ui_elements;
 mod xaml_reader;
@@ -83,12 +86,11 @@ fn main() {
     let filename = &args[1];
 
     let tree = xaml_reader::read_xaml(filename);
-    if let Result::Ok(t) = tree {
-        println!("TREE ---> ");
-        let root = t.lock().unwrap();
-        root.dump(0);
-        start_interpreter(root);
-    } else {
-        println!("no tree returned from xaml parse?");
+    match tree {
+        Result::Ok(t) => {
+            t.as_ref().lock().unwrap().dump(0);
+            start_interpreter(t.as_ref().lock().unwrap().deref());
+        }
+        Result::Err(err) => {}
     }
 }

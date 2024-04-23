@@ -61,7 +61,7 @@ pub fn read_xaml(filename: &String) -> Result<UIElementRef, std::io::Error> {
                 }
             }
             Ok(XmlEvent::Characters(s)) => {
-                if parse_stack.len() > 0 {
+                if !parse_stack.is_empty() {
                     let last = parse_stack.last();
                     last.unwrap().lock().unwrap().add_content_string(s);
                 }
