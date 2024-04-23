@@ -13,14 +13,18 @@ impl Window {
             window_style: get_attribute(&attributes, "WindowStyle", ""),
             common: UICommon::new(attributes),
         };
-        w.set_width(100);
-        w.set_height(100);
+        if w.common.get_width().is_none() {
+            w.set_width(100);
+        }
+        if (w.common.get_height().is_none()) {
+            w.set_height(100);
+        }
         w
     }
 
     pub fn get_title(&self) -> &String { &self.title }
-    pub fn get_width(&self) -> i32 { self.common.get_width() }
-    pub fn get_height(&self) -> i32 { self.common.get_height() }
+    pub fn get_width(&self) -> i32 { self.common.get_width().unwrap() }
+    pub fn get_height(&self) -> i32 { self.common.get_height().unwrap() }
     pub fn set_width(&mut self, width: i32) { self.common.set_width(width); }
     pub fn set_height(&mut self, height: i32) { self.common.set_height(height); }
 }

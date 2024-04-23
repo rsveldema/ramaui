@@ -55,20 +55,20 @@ impl UICommon {
         self.set_attribute(&"Height".to_string(), & v.to_string())
     }
 
-    pub fn get_width(&self) -> i32 { 
+    pub fn get_width(&self) -> Option<i32> { 
        let value = get_attribute(&self.attributes, "Width", "").parse::<i32>();
        if value.is_err() {
-        return 320;
+        return Option::None;
        }
-       return value.unwrap();
+       return Option::Some(value.unwrap());
     }
     
-    pub fn get_height(&self) -> i32 {
+    pub fn get_height(&self) -> Option<i32> {
         let value = get_attribute(&self.attributes, "Height", "").parse::<i32>();
         if value.is_err() {
-            return 200;
+            return Option::None;
         }
-        return value.unwrap();
+        return Option::Some(value.unwrap());
     }
 
     pub fn visit(&self, visitor: &mut dyn Visitor) {

@@ -92,21 +92,8 @@ fn open_ui(app: &Application, files: &[gtk::gio::File], _s: &str, root: UIElemen
     if let Some(window) = window_opt {
         window.present();
     } else {
-        println!("failed to build ui from XAML");
+        panic!("failed to build ui from XAML");
     }
-
-    /*
-    println!("open_ui");
-    // Create a window and set the title
-    let window: ApplicationWindow = ApplicationWindow::builder()
-        .application(app)
-        .title("My GTK App")
-        .default_width(320)
-        .default_height(200)
-        .build();
-    // Present window
-    window.present();
-    */
 }
 
 fn start_interpreter(root: &UIElementRef) -> glib::ExitCode {
