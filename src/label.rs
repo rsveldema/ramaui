@@ -12,6 +12,8 @@ impl Label {
             common: UICommon::new(attributes),
         }
     }
+
+    pub fn get_content(&self) -> &String { &self.content } 
 }
 
 impl UIElement for Label {
@@ -38,6 +40,7 @@ impl UIElement for Label {
     }
     
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_label(self);
         self.common.visit(visitor);
         visitor.visit_label(self);
     }

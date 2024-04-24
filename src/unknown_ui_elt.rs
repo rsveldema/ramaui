@@ -30,6 +30,7 @@ impl UIElement for Unknown {
     fn add_content_string(&mut self, _: String) {}
     
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_unknown(self);
         self.common.visit(visitor);
         visitor.visit_unknown(self);
     }

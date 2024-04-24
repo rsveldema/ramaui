@@ -4,7 +4,7 @@ use std::rc::Rc;
 use std::sync::Mutex;
 use xml::reader::{EventReader, XmlEvent};
 
-use crate::{button::Button, content_page::ContentPage, grid::{ColumnDefinition, Grid, GridColumnDefinitions, GridRowDefinitions, RowDefinition}, label::Label, text_block::TextBlock, ui_elements::UIElementRef, unknown_ui_elt::Unknown, window::Window};
+use crate::{button::Button, content_page::ContentPage, grid_layout::{ColumnDefinition, GridColumnDefinitions, GridLayout, GridRowDefinitions, RowDefinition}, label::Label, stack_layout::StackLayout, text_block::TextBlock, ui_elements::UIElementRef, unknown_ui_elt::Unknown, window::Window};
 
 
 fn create_ui_element(name: &str, attributes: Vec<xml::attribute::OwnedAttribute>) -> UIElementRef {
@@ -13,7 +13,8 @@ fn create_ui_element(name: &str, attributes: Vec<xml::attribute::OwnedAttribute>
         "ContentPage" => Rc::new(Mutex::new(ContentPage::new(attributes))),
         "Button" => Rc::new(Mutex::new(Button::new(attributes))),
         "Window" => Rc::new(Mutex::new(Window::new(attributes))),
-        "Grid" => Rc::new(Mutex::new(Grid::new(attributes))),
+        "Grid" => Rc::new(Mutex::new(GridLayout::new(attributes))),
+        "StackPanel" => Rc::new(Mutex::new(StackLayout::new(attributes))),
         "Grid.ColumnDefinitions" => Rc::new(Mutex::new(GridColumnDefinitions::new(attributes))),
         "Grid.RowDefinitions" => Rc::new(Mutex::new(GridRowDefinitions::new(attributes))),
         "ColumnDefinition" => Rc::new(Mutex::new(ColumnDefinition::new(attributes))),

@@ -37,6 +37,8 @@ impl UIElement for ContentPage {
     fn add_content_string(&mut self, _: String) {}
     
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_content_page(self);
         self.common.visit(visitor);
+        visitor.visit_content_page(self);
     }
 }

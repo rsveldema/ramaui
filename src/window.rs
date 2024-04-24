@@ -13,10 +13,12 @@ impl Window {
             window_style: get_attribute(&attributes, "WindowStyle", ""),
             common: UICommon::new(attributes),
         };
+        
         if w.common.get_width().is_none() {
             w.set_width(100);
         }
-        if (w.common.get_height().is_none()) {
+
+        if w.common.get_height().is_none() {
             w.set_height(100);
         }
         w
@@ -52,6 +54,7 @@ impl UIElement for Window {
     fn add_content_string(&mut self, _: String) {}
     
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_window(self);
         self.common.visit(visitor);
         visitor.visit_window(self);
     }

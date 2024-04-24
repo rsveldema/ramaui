@@ -4,12 +4,28 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [{
-        "name": "Launch rust prog",
+        "name": "grid-test",
         "type": "lldb",
         "request": "launch",
         "program": "${workspaceFolder}/target/debug/ramaui",
         "cwd": "${workspaceFolder}",
-        "args": ["tests/labeltest.xaml"],
+        "args": ["tests/grid-test.xaml"],
+        "preLaunchTask": "rust: cargo build"
+    }, {
+        "name": "stack-test",
+        "type": "lldb",
+        "request": "launch",
+        "program": "${workspaceFolder}/target/debug/ramaui",
+        "cwd": "${workspaceFolder}",
+        "args": ["tests/stack-test.xaml"],
+        "preLaunchTask": "rust: cargo build"
+    }, {
+        "name": "button-test",
+        "type": "lldb",
+        "request": "launch",
+        "program": "${workspaceFolder}/target/debug/ramaui",
+        "cwd": "${workspaceFolder}",
+        "args": ["tests/button-test.xaml"],
         "preLaunchTask": "rust: cargo build"
     }
     ]

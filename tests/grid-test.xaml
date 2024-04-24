@@ -27,6 +27,5 @@
         <TextBlock FontSize="12" Grid.Row="2" Grid.Column="0">Mike Gold</TextBlock>  
         <TextBlock FontSize="12" Grid.Row="2" Grid.Column="1">35</TextBlock>  
         <TextBlock FontSize="12" Grid.Row="2" Grid.Column="2">Programming C#</TextBlock>        
-  
     </Grid>  
 </Window>  

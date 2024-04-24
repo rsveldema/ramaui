@@ -1,4 +1,4 @@
-use std::{i32, num::ParseIntError, rc::Rc, sync::Mutex};
+use std::{i32, rc::Rc, sync::Mutex};
 
 use xml::{attribute::OwnedAttribute, name::OwnedName};
 

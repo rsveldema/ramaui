@@ -1,6 +1,6 @@
 use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
-pub struct Grid {
+pub struct GridLayout {
     common: UICommon,
     name: String,
     show_grid_lines: String,
@@ -22,9 +22,9 @@ pub struct RowDefinition {
     common: UICommon,
 }
 
-impl Grid {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Grid {
-        Grid {
+impl GridLayout {
+    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridLayout {
+        GridLayout {
             name: get_attribute(&attributes, "Name", ""),
             background: get_attribute(&attributes, "Background", ""),
             show_grid_lines: get_attribute(&attributes, "ShowGridLines", ""),
@@ -33,7 +33,7 @@ impl Grid {
     }
 }
 
-impl UIElement for Grid {
+impl UIElement for GridLayout {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
@@ -50,6 +50,7 @@ impl UIElement for Grid {
     fn add_content_string(&mut self, _: String) {}
     
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_grid(self);
         self.common.visit(visitor);
         visitor.visit_grid(self);
     }
@@ -80,6 +81,7 @@ impl UIElement for GridColumnDefinitions {
     fn add_content_string(&mut self, _: String) {}
 
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_grid_cols(self);
         self.common.visit(visitor);
         visitor.visit_grid_cols(self);
     }
@@ -110,6 +112,7 @@ impl UIElement for GridRowDefinitions {
     fn add_content_string(&mut self, _: String) {}
 
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_grid_row(self);
         self.common.visit(visitor);
         visitor.visit_grid_row(self);
     }
@@ -139,6 +142,7 @@ impl UIElement for ColumnDefinition {
     fn add_content_string(&mut self, _: String) {}
 
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_col_def(self);
         self.common.visit(visitor);
         visitor.visit_col_def(self);
     }
@@ -168,6 +172,7 @@ impl UIElement for RowDefinition {
     fn add_content_string(&mut self, _: String) {}
 
     fn visit(&self, visitor: &mut dyn Visitor) {
+        visitor.start_visit_row_def(self);
         self.common.visit(visitor);
         visitor.visit_row_def(self);
     }
