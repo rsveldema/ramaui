@@ -233,7 +233,7 @@ fn usage() {
     let args: Vec<String> = env::args().collect();
     println!("USAGE: <xaml>");
     for s in args {
-        println!("arg: {}", s);
+        println!("saw arg: {}", s);
     }
     std::process::exit(1);
 }
