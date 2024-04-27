@@ -25,6 +25,24 @@ fn usage() {
     std::process::exit(1);
 }
 
+
+struct MainWindow {
+}
+
+
+
+
+impl MainWindow {
+    pub fn new() -> MainWindow {
+        return MainWindow {};
+    }
+
+    pub fn Button_Click() {
+
+    }
+}
+
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -37,7 +55,11 @@ fn main() {
     match tree {
         Result::Ok(t) => {
             t.as_ref().lock().unwrap().dump(0);
-            start_interpreter(&t);
+
+            let win = MainWindow::new();
+            let w = std::rc::Rc::new(std::sync::Mutex::new(win));
+
+            start_interpreter(&t, &w);
         }
         Result::Err(err) => {
             println!("failed to read xml: {}", err)

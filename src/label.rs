@@ -20,12 +20,15 @@ impl UIElement for Label {
     fn get_attribute(&self, s: &String) -> Option<String> {
         self.common.get_attribute(s)
     }
+    
     fn get_ui_type_name(&self) -> &'static str {
         "Label"
     }
+    
     fn add_child(&mut self, child: UIElementRef) {
         self.common.add_child(child)
     }
+    
     fn dump(&self, indent: i32) {
         println!(
             "{}DUMP: {} - content:{}",
@@ -35,6 +38,7 @@ impl UIElement for Label {
         );
         self.common.dump(indent);
     }
+
     fn add_content_string(&mut self, s: String) {
         self.content = s;
     }

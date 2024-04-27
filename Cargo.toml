@@ -8,3 +8,8 @@ edition = "2021"
 [dependencies]
 gtk = { version = "0.8.1", package = "gtk4", features = ["v4_6"] }
 xml-rs = "0.8.20"
+syn = "2.0.60"
+quote = "1.0.36"
+
+[lib]
+proc-macro = true

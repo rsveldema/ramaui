@@ -3,5 +3,5 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
     Title="MyWindowName" Height="300" Width="450" WindowStyle="ThreeDBorderWindow">  
     
-    <Button Content="Click Me"/>
+    <Button Click="Button_Click">Click me</Button>
 </Window>  
