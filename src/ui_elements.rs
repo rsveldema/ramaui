@@ -32,8 +32,8 @@ pub trait UIElement {
 
 pub struct UICommon {
     attributes: Vec<xml::attribute::OwnedAttribute>,
-    width: String,
-    height: String,
+    _width: String,
+    _height: String,
     children: Vec<UIElementRef>,
 }
 
@@ -42,8 +42,8 @@ impl UICommon {
         UICommon {
             attributes: attributes.clone(),
             children: Vec::new(),
-            width: get_attribute(&attributes, "Width", ""),
-            height: get_attribute(&attributes, "Height", ""),
+            _width: get_attribute(&attributes, "Width", ""),
+            _height: get_attribute(&attributes, "Height", ""),
         }
     }
 
@@ -60,7 +60,7 @@ impl UICommon {
        if value.is_err() {
         return Option::None;
        }
-       return Option::Some(value.unwrap());
+        Option::Some(value.unwrap())
     }
     
     pub fn get_height(&self) -> Option<i32> {
@@ -68,7 +68,7 @@ impl UICommon {
         if value.is_err() {
             return Option::None;
         }
-        return Option::Some(value.unwrap());
+        Option::Some(value.unwrap())
     }
 
     pub fn visit(&self, visitor: &mut dyn Visitor) {

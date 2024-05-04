@@ -2,9 +2,9 @@ use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef
 
 pub struct TextBlock {
     text: String,
-    font_weight: String,
-    font_size: String,
-    foreground: String,
+    _font_weight: String,
+    _font_size: String,
+    _foreground: String,
     common: UICommon,
 }
 
@@ -12,9 +12,9 @@ impl TextBlock {
     pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> TextBlock {
         TextBlock {
             text: get_attribute(&attributes, "Text", ""),
-            font_weight: get_attribute(&attributes, "TextWeight", ""),
-            font_size: get_attribute(&attributes, "FontSize", ""),
-            foreground: get_attribute(&attributes, "Foreground", ""),
+            _font_weight: get_attribute(&attributes, "TextWeight", ""),
+            _font_size: get_attribute(&attributes, "FontSize", ""),
+            _foreground: get_attribute(&attributes, "Foreground", ""),
             common: UICommon::new(attributes),
         }
     }

@@ -2,9 +2,9 @@ use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef
 
 pub struct GridLayout {
     common: UICommon,
-    name: String,
-    show_grid_lines: String,
-    background: String,
+    _name: String,
+    _show_grid_lines: String,
+    _background: String,
 }
 
 pub struct GridColumnDefinitions {
@@ -25,9 +25,9 @@ pub struct RowDefinition {
 impl GridLayout {
     pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridLayout {
         GridLayout {
-            name: get_attribute(&attributes, "Name", ""),
-            background: get_attribute(&attributes, "Background", ""),
-            show_grid_lines: get_attribute(&attributes, "ShowGridLines", ""),
+            _name: get_attribute(&attributes, "Name", ""),
+            _background: get_attribute(&attributes, "Background", ""),
+            _show_grid_lines: get_attribute(&attributes, "ShowGridLines", ""),
             common: UICommon::new(attributes),
         }
     }

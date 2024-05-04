@@ -13,8 +13,9 @@ impl Button {
             common: UICommon::new(attributes),
         }
     }
+
     pub fn get_text(&self) -> String { 
-        return self.content.to_string();
+        self.content.to_string()
     }
 }
 

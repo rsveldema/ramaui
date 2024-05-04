@@ -2,7 +2,7 @@ use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef
 
 pub struct Window {
     title: String,
-    window_style: String,
+    _window_style: String,
     common: UICommon,
 }
 
@@ -10,7 +10,7 @@ impl Window {
     pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Window {
         let mut w = Window {
             title: get_attribute(&attributes, "Title", "Title"),
-            window_style: get_attribute(&attributes, "WindowStyle", ""),
+            _window_style: get_attribute(&attributes, "WindowStyle", ""),
             common: UICommon::new(attributes),
         };
         

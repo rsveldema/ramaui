@@ -12,7 +12,9 @@ mod visitor;
 mod window;
 mod xaml_reader;
 mod ui_builder;
+mod callable;
 
+use ramaui::inspectable;
 use ui_builder::start_interpreter;
 
 
@@ -26,19 +28,14 @@ fn usage() {
 }
 
 
-struct MainWindow {
-}
 
-
-
-
+#[inspectable(bar)]
 impl MainWindow {
-    pub fn new() -> MainWindow {
-        return MainWindow {};
+    pub fn button_click(&self) {
+        println!("called MainWindow::button click!");
     }
-
-    pub fn Button_Click() {
-
+    pub fn checkbox_click(&self) {
+        println!("called MainWindow::checkbox click!");
     }
 }
 
@@ -56,10 +53,12 @@ fn main() {
         Result::Ok(t) => {
             t.as_ref().lock().unwrap().dump(0);
 
-            let win = MainWindow::new();
-            let w = std::rc::Rc::new(std::sync::Mutex::new(win));
+            let win:&'static mut MainWindow = Box::leak::<'static>(Box::new(MainWindow::new()));
 
-            start_interpreter(&t, &w);
+            let cwin: &'static mut dyn CallableByName = win as &'static mut dyn CallableByName;
+            let w: std::rc::Rc<std::sync::Mutex<&'static dyn CallableByName>>  = std::rc::Rc::new(std::sync::Mutex::new(cwin));
+
+            start_interpreter(&t, w);
         }
         Result::Err(err) => {
             println!("failed to read xml: {}", err)

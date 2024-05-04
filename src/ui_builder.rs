@@ -1,4 +1,3 @@
-
 use std::rc::Rc;
 use std::sync::Mutex;
 
@@ -6,8 +5,9 @@ use gtk::gio::ApplicationFlags;
 use gtk::{glib, prelude::*};
 use gtk::{Application, ApplicationWindow};
 
+use crate::callable::CallableByName;
 use crate::stack_layout::StackLayout;
-use crate::ui_elements::UIElementRef;
+use crate::ui_elements::{UIElement, UIElementRef};
 use crate::visitor::Visitor;
 use crate::{
     button::Button,
@@ -23,12 +23,19 @@ use crate::{
 
 const APP_ID: &str = "org.gtk_rs.HelloWorld1";
 
-fn open_ui<T>(app: &Application, main_win: &Rc<Mutex<T>>, files: &[gtk::gio::File], _s: &str, root: UIElementRef) {
+fn open_ui<'b>(
+    app: &'b Application,
+    main_win: Rc<Mutex<&'static dyn CallableByName>>,
+    files: &[gtk::gio::File],
+    _s: &str,
+    root: UIElementRef,
+) {
     for file in files {
         println!("Open--: {:?}", file.path());
     }
 
-    let window_opt = build_ui_from_xaml::<T>(app, root, main_win);
+    let builder = build_ui_from_xaml(app, root, main_win);
+    let window_opt = builder.root;
     if let Some(window) = window_opt {
         window.present();
     } else {
@@ -55,21 +62,21 @@ enum GtkPushed {
     Label(gtk::Label),
 }
 
-struct UIBuilder<'b, T> {
+struct UIBuilder<'b> {
     root: Option<ApplicationWindow>,
     app: &'b Application,
     nested_gtk_items: Vec<Vec<GtkPushed>>,
-    main_win: &'b Rc<Mutex<T>>
+    _main_win: Rc<Mutex<&'static dyn CallableByName>>,
 }
 
-impl<'b, T> UIBuilder<'b, T> {
-    fn new(app: &'b Application, win: &'b Rc<Mutex<T>>) -> UIBuilder<'b, T> {
-        return UIBuilder::<T> {
+impl<'b> UIBuilder<'b> {
+    fn new(app: &'b Application, win: Rc<Mutex<&'static dyn CallableByName>>) -> UIBuilder<'b> {
+        UIBuilder {
             root: Option::None,
-            app: app,
+            app,
             nested_gtk_items: Vec::new(),
-            main_win: win
-        };
+            _main_win: win.clone(),
+        }
     }
 
     fn enter_scope(&mut self) {
@@ -85,7 +92,7 @@ impl<'b, T> UIBuilder<'b, T> {
     }
 }
 
-impl<'lifetime, T> Visitor for UIBuilder<'lifetime, T> {
+impl<'lifetime> Visitor for UIBuilder<'lifetime> {
     fn start_visit_button(&mut self, _b: &Button) {
         self.enter_scope()
     }
@@ -124,10 +131,24 @@ impl<'lifetime, T> Visitor for UIBuilder<'lifetime, T> {
     }
 
     fn visit_button(&mut self, b: &Button) {
+        let clicked_opt = b.get_attribute(&"Click".to_string());
         let gtk_b = gtk::Button::with_label(&b.get_text());
-        gtk_b.connect_clicked(|_b| {
-          
-        });
+        if let Some(clicked) = clicked_opt {
+            let mw = self._main_win.clone();
+            gtk_b.connect_clicked(move |_b| {
+                let w = mw.lock();
+                match w {
+                    Ok(z) => {
+                        z.call_method(&clicked);
+                    }
+
+                    Err(e) => {
+                        panic!("failed to lock main win: {}", e);
+                    }
+                }
+            });
+        }
+
         self.leave_scope();
         self.last_scope().push(GtkPushed::Button(gtk_b));
     }
@@ -165,53 +186,58 @@ impl<'lifetime, T> Visitor for UIBuilder<'lifetime, T> {
         self.leave_scope();
         self.last_scope().push(GtkPushed::Label(gtk_label));
     }
-    
+
     fn visit_text_block(&mut self, _t: &TextBlock) {
         self.leave_scope();
     }
-    
+
     fn visit_grid(&mut self, _g: &GridLayout) {
         self.leave_scope();
     }
-    
+
     fn visit_stack(&mut self, _g: &StackLayout) {
         self.leave_scope();
     }
-    
+
     fn visit_grid_cols(&mut self, _g: &GridColumnDefinitions) {
         self.leave_scope();
     }
-    
+
     fn visit_grid_row(&mut self, _g: &GridRowDefinitions) {
         self.leave_scope();
     }
-    
+
     fn visit_col_def(&mut self, _g: &ColumnDefinition) {
         self.leave_scope();
     }
-    
+
     fn visit_row_def(&mut self, _g: &RowDefinition) {
         self.leave_scope();
     }
-    
+
     fn visit_content_page(&mut self, _g: &ContentPage) {
         self.leave_scope();
     }
-    
+
     fn visit_unknown(&mut self, _g: &Unknown) {
         self.leave_scope();
     }
 }
 
-
-pub fn build_ui_from_xaml<T>(app: &Application, root: UIElementRef, main_win: &Rc<Mutex<T>>) -> Option<ApplicationWindow> {
-    let mut builder = UIBuilder::<T>::new(app, main_win);
+fn build_ui_from_xaml<'b>(
+    app: &'b Application,
+    root: UIElementRef,
+    main_win: Rc<Mutex<&'static dyn CallableByName>>,
+) -> UIBuilder<'b> {
+    let mut builder = UIBuilder::new(app, main_win.clone());
     root.as_ref().lock().unwrap().visit(&mut builder);
-    return builder.root;
+    builder
 }
 
-
-pub fn start_interpreter<T: 'static>(root: &UIElementRef, win: &Rc<Mutex<T>>) -> glib::ExitCode {
+pub fn start_interpreter(
+    root: &UIElementRef,
+    win: Rc<Mutex<&'static dyn CallableByName>>,
+) -> glib::ExitCode {
     // Create a new application
     let app = Application::builder()
         .application_id(APP_ID)
@@ -219,12 +245,12 @@ pub fn start_interpreter<T: 'static>(root: &UIElementRef, win: &Rc<Mutex<T>>) ->
         .build();
 
     // clone to get rid of the borrow of the parameter
-    let k = root.clone();
-    let z = win.clone();
+    let root_clone: Rc<Mutex<dyn crate::ui_elements::UIElement>> = root.clone();
+    let win_clone = win.clone();
     app.connect_open(
         move |app: &Application, files: &[gtk::gio::File], s: &str| {
             // clone k to pass into open-ui
-            open_ui::<T>(app, &z, files, s, k.clone());
+            open_ui(app, win_clone.clone(), files, s, root_clone.clone());
         },
     );
 
@@ -232,5 +258,7 @@ pub fn start_interpreter<T: 'static>(root: &UIElementRef, win: &Rc<Mutex<T>>) ->
     app.connect_activate(build_ui);
 
     // Run the application
-    app.run()
+    app.run();
+
+    panic!();
 }
