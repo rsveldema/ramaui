@@ -14,7 +14,7 @@ impl Unknown {
 }
 
 impl UIElement for Unknown {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {

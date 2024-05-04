@@ -14,7 +14,7 @@ impl StackLayout {
 }
 
 impl UIElement for StackLayout {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     

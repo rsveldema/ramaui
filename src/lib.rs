@@ -1,14 +1,12 @@
+use crate::syn::ImplItem::Fn;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote, ToTokens, TokenStreamExt};
 use syn::{self, parse_macro_input, ItemImpl};
-use crate::syn::ImplItem::Fn;
 
 struct FoundFuncs {
-    name : String,
+    name: String,
     //inputs : Punctuated<FnArg, Comma>
 }
-
-
 
 impl ToTokens for FoundFuncs {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
@@ -22,8 +20,7 @@ impl ToTokens for FoundFuncs {
     }
 }
 
-fn get_name_from_impl_block(input: &ItemImpl) -> syn::Ident
-{
+fn get_name_from_impl_block(input: &ItemImpl) -> syn::Ident {
     let impl_path = &input.self_ty;
     let impl_ref = impl_path.as_ref();
     match impl_ref {
@@ -32,14 +29,13 @@ fn get_name_from_impl_block(input: &ItemImpl) -> syn::Ident
             let name = segments[0].ident.to_string();
             let impl_name = name;
             let name = format_ident!("{}", impl_name);
-            return name;
+            name
         }
 
         _ => {
-            panic!("unhandled assoc type: {}", impl_path.to_token_stream().to_string());
+            panic!("unhandled assoc type: {}", impl_path.to_token_stream());
         }
     }
-
 }
 
 #[proc_macro_attribute]
@@ -53,33 +49,28 @@ pub fn inspectable(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let name = get_name_from_impl_block(&input);
 
     for item in &input.items {
-        
-        match item {
-            Fn(impl_item) => {                
-               // println!("found impl item !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {:#?}", impl_item);
+        if let Fn(impl_item) = item {
+            // println!("found impl item !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {:#?}", impl_item);
 
-                let sig = &impl_item.sig;
-                let ident = &sig.ident;
-                let generics = &sig.generics;
-                let inputs = &sig.inputs;
+            let sig = &impl_item.sig;
+            let ident = &sig.ident;
+            let generics = &sig.generics;
+            let inputs = &sig.inputs;
 
-                if generics.params.len() > 0 {
-                    // no introspection for generics
-                    // as we can't direcly call it
-                    continue;
-                }
-
-                if inputs.len() != 1 {
-                    continue;
-                }
-                
-                funcs.push(FoundFuncs {
-                    name : ident.to_string(),
-                    //inputs: inputs.clone()
-                });
+            if !generics.params.is_empty() {
+                // no introspection for generics
+                // as we can't direcly call it
+                continue;
             }
 
-            _ => {}
+            if inputs.len() != 1 {
+                continue;
+            }
+
+            funcs.push(FoundFuncs {
+                name: ident.to_string(),
+                //inputs: inputs.clone()
+            });
         }
     }
 
@@ -88,7 +79,7 @@ pub fn inspectable(_meta: TokenStream, code: TokenStream) -> TokenStream {
         // The generated impl.
         struct #method_info {
             name: String,
-            func: fn(&#name) 
+            func: fn(&#name)
         }
         struct #name {
             info: Vec<#method_info>
@@ -130,16 +121,16 @@ pub fn inspectable(_meta: TokenStream, code: TokenStream) -> TokenStream {
                         println!("failed to find method: {}", name);
                     }
                 }
-            }        
+            }
         }
     };
 
-    let new_toks = quote!(#input); 
+    let new_toks = quote!(#input);
 
-   // TokenStream::from(expanded.append_all(new_toks))
-   expanded.append_all(new_toks);
+    // TokenStream::from(expanded.append_all(new_toks))
+    expanded.append_all(new_toks);
 
-   // println!("expanded = {}", expanded);
+    // println!("expanded = {}", expanded);
 
-   TokenStream::from(expanded)
+    TokenStream::from(expanded)
 }

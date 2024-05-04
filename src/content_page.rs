@@ -16,7 +16,7 @@ impl ContentPage {
 }
 
 impl UIElement for ContentPage {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {

@@ -34,7 +34,7 @@ impl GridLayout {
 }
 
 impl UIElement for GridLayout {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -65,7 +65,7 @@ impl GridColumnDefinitions {
 }
 
 impl UIElement for GridColumnDefinitions {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -96,7 +96,7 @@ impl GridRowDefinitions {
 }
 
 impl UIElement for GridRowDefinitions {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -126,7 +126,7 @@ impl ColumnDefinition {
     }
 }
 impl UIElement for ColumnDefinition {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -156,7 +156,7 @@ impl RowDefinition {
     }
 }
 impl UIElement for RowDefinition {
-    fn get_attribute(&self, s: &String) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {

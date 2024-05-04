@@ -23,8 +23,8 @@ use crate::{
 
 const APP_ID: &str = "org.gtk_rs.HelloWorld1";
 
-fn open_ui<'b>(
-    app: &'b Application,
+fn open_ui(
+    app: &Application,
     main_win: Rc<Mutex<&'static dyn CallableByName>>,
     files: &[gtk::gio::File],
     _s: &str,
@@ -131,7 +131,7 @@ impl<'lifetime> Visitor for UIBuilder<'lifetime> {
     }
 
     fn visit_button(&mut self, b: &Button) {
-        let clicked_opt = b.get_attribute(&"Click".to_string());
+        let clicked_opt = b.get_attribute("Click");
         let gtk_b = gtk::Button::with_label(&b.get_text());
         if let Some(clicked) = clicked_opt {
             let mw = self._main_win.clone();

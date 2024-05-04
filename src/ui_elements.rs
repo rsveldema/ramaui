@@ -8,7 +8,7 @@ pub type UIElementRef = Rc<Mutex<dyn UIElement>>;
 
 // utility func for extracting props from XAML
 pub fn get_attribute(
-    attributes: &Vec<xml::attribute::OwnedAttribute>,
+    attributes: &[xml::attribute::OwnedAttribute],
     name: &str,
     default_str: &str,
 ) -> String {
@@ -25,7 +25,7 @@ pub trait UIElement {
     fn add_child(&mut self, child: UIElementRef);
     fn dump(&self, indent: i32);
     fn add_content_string(&mut self, s: String);
-    fn get_attribute(&self, s: &String) -> Option<String>;
+    fn get_attribute(&self, s: &str) -> Option<String>;
 
     fn visit(&self, visitor: &mut dyn Visitor);
 }
@@ -77,7 +77,7 @@ impl UICommon {
         }
     }
 
-    pub fn get_attribute(&self, s: &String) -> Option<String> {
+    pub fn get_attribute(&self, s: &str) -> Option<String> {
         for attr in self.attributes.iter() {
             if attr.name.local_name.eq(s) {
                 return Option::Some(attr.value.clone());
