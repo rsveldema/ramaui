@@ -106,6 +106,7 @@ impl UICommon {
         if let Some(p) = self.internal_get_attribute(&ev.get_name()) {
             let mc = ev.get_callable();
             mc.lock().call_method(p.as_str());
+            return;
         }
 
         if let Some(p) = &self.parent {
