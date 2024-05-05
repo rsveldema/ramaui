@@ -5,7 +5,7 @@ use gtk::{Application, ApplicationWindow};
 use crate::callable::MainCallable;
 use crate::events::Event;
 use crate::stack_layout::StackLayout;
-use crate::ui_elements::UIElement;
+use crate::ui_elements::{UIElement, UIElementRef};
 use crate::visitor::Visitor;
 use crate::{
     button::Button,
@@ -86,6 +86,30 @@ impl<'b> UIBuilder<'b> {
     }
 }
 
+fn handle_event_from_gtk(mw: MainCallable, id: &String,
+    ev_name: &str)
+{
+    let mut handler: Option<UIElementRef> = Option::None;
+
+    {
+        let k = mw.lock();
+        if let Some(tree) = k.get_tree() {
+            handler = tree.find_by_id(id.to_string());
+        } else {
+            println!("failed to get tree?");
+        }
+    }
+
+    if let Some(b) = handler {
+        let k = b.lock();
+        println!("elt found = {}", k.get_ui_type_name());
+        k.handle_event(Event::new(ev_name, mw));
+    } else {
+        println!("failed to find ui elt {}", id);
+    }
+}
+
+
 impl<'lifetime> Visitor for UIBuilder<'lifetime> {
     fn start_visit_button(&mut self, _b: &Button) {
         self.enter_scope()
@@ -129,18 +153,7 @@ impl<'lifetime> Visitor for UIBuilder<'lifetime> {
         let mw = self._main_win;
         let id = b.get_id();
         gtk_b.connect_clicked(move |_gtk_button| {
-            let k = mw.lock();
-            if let Some(tree) = k.get_tree() {
-                if let Some(b) = tree.find_by_id(id.to_string()) {
-                    let k = b.lock();
-                    println!("elt found = {}", k.get_ui_type_name());
-                    k.handle_event(Event::new("Button.Click", mw));
-                } else {
-                    println!("failed to find ui elt {}", id);
-                }
-            } else {
-                println!("failed to get tree?");
-            }
+            handle_event_from_gtk(mw, &id, "Button.Click");
         });
 
         self.leave_scope();
