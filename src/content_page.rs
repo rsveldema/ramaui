@@ -8,15 +8,22 @@ pub struct ContentPage {
 
 
 impl UIAlloc for ContentPage {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> ContentPage {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> ContentPage {
         ContentPage {
             title: get_attribute(&attributes, "Title", "Title"),
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for ContentPage {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
         self.common.handle_event(ev);
     }

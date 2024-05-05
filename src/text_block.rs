@@ -10,19 +10,28 @@ pub struct TextBlock {
 
 
 impl UIAlloc for TextBlock {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> TextBlock {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> TextBlock {
         TextBlock {
             text: get_attribute(&attributes, "Text", ""),
             _font_weight: get_attribute(&attributes, "TextWeight", ""),
             _font_size: get_attribute(&attributes, "FontSize", ""),
             _foreground: get_attribute(&attributes, "Foreground", ""),
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for TextBlock {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
+        println!("NOTICE: textblock-handle-event");
+
         self.common.handle_event(ev);
     }
 

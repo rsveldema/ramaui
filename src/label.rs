@@ -11,17 +11,26 @@ impl Label {
 
 
 impl UIAlloc for Label {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Label {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Label {
         Label {
             content: get_attribute(&attributes, "Text", ""),
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 
 impl UIElement for Label {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
+
     fn handle_event(&self, ev: Event) {
+        println!("NOTICE: label-handle-event");
         self.common.handle_event(ev);
     }
 

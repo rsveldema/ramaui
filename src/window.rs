@@ -8,11 +8,11 @@ pub struct Window {
 
 
 impl UIAlloc for Window {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Window {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Window {
         let mut w = Window {
             title: get_attribute(&attributes, "Title", "Title"),
             _window_style: get_attribute(&attributes, "WindowStyle", ""),
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         };
         
         if w.common.get_width().is_none() {
@@ -27,7 +27,6 @@ impl UIAlloc for Window {
 }
 
 impl Window {
-
     pub fn get_title(&self) -> &String { &self.title }
     pub fn get_width(&self) -> i32 { self.common.get_width().unwrap() }
     pub fn get_height(&self) -> i32 { self.common.get_height().unwrap() }
@@ -36,7 +35,15 @@ impl Window {
 }
 
 impl UIElement for Window {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
+        println!("NOTICE: window-handle-event");
         self.common.handle_event(ev);
     }
 

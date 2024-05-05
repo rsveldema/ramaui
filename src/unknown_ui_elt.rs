@@ -7,14 +7,21 @@ pub struct Unknown {
 
 
 impl UIAlloc for Unknown {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Unknown {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Unknown {
         Unknown {
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for Unknown {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
         self.common.handle_event(ev);
     }

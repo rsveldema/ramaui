@@ -7,10 +7,10 @@ pub struct Button {
 }
 
 impl UIAlloc for Button {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Button {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Button {
         Button {
             content: get_attribute(&attributes, "Content", ""),
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
@@ -22,7 +22,16 @@ impl Button {
 }
 
 impl UIElement for Button {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
+        println!("NOTICE: button-handle-event");
         self.common.handle_event(ev);
     }
 

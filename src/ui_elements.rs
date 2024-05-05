@@ -8,18 +8,24 @@ use crate::{events::Event, visitor::Visitor};
 pub type UIElementRef = Arc<Mutex<dyn UIElement>>;
 
 pub struct UITree {
-    pub root : Option<UIElementRef>
+    pub root: Option<UIElementRef>,
 }
 
 impl UITree {
     pub fn new() -> UITree {
-        UITree {
-            root : Option::None
-        }
+        UITree { root: Option::None }
     }
 
-    pub fn trigger_event(&self) {
-        println!("need to trigger event");
+    pub fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        if let Some(x) = &self.root {
+            let k = x.lock();
+            if k.get_id() == id {
+                return Some(x.clone());
+            }
+
+            return k.find_by_id(id);
+        }
+        return None;
     }
 }
 
@@ -40,10 +46,13 @@ pub fn get_attribute(
 }
 
 pub trait UIAlloc {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Self;
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Self;
 }
 
 pub trait UIElement {
+    fn get_id(&self) -> String;    
+    fn find_by_id(&self, id: String) -> Option<UIElementRef>;
+
     fn get_ui_type_name(&self) -> &'static str;
     fn add_child(&mut self, child: UIElementRef, parent: UIElementRef);
     fn set_parent(&mut self, parent: UIElementRef);
@@ -62,25 +71,46 @@ pub struct UICommon {
     _width: String,
     _height: String,
     children: Vec<UIElementRef>,
+    id: String,
 }
 
 impl UICommon {
-    pub fn new( attributes: Vec<xml::attribute::OwnedAttribute>) -> UICommon {
+    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> UICommon {
         UICommon {
             parent: Option::None,
             attributes: attributes.clone(),
             children: Vec::new(),
             _width: get_attribute(&attributes, "Width", ""),
             _height: get_attribute(&attributes, "Height", ""),
+            id,
         }
+    }
+
+    pub fn get_id(&self) -> String {
+        self.id.to_string()
+    }
+
+    pub fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        for c in self.children.iter() {
+            let k = c.clone();
+            if k.lock().get_id() == id {
+                return Some(k);
+            }
+        }
+
+        return None;
     }
 
     pub fn set_parent(&mut self, parent: UIElementRef) {
         self.parent = Some(parent);
     }
 
-    pub fn handle_event(&self, ev: Event)
-    {
+    pub fn handle_event(&self, ev: Event) {                
+        if let Some(p) = self.get_attribute(&ev.get_name()) {
+            let mc = ev.get_callable();
+            mc.lock().call_method(p.as_str());
+        }
+
         if let Some(p) = &self.parent {
             p.lock().handle_event(ev);
         }
@@ -91,17 +121,17 @@ impl UICommon {
     }
 
     pub fn set_height(&mut self, v: i32) {
-        self.set_attribute(&"Height".to_string(), & v.to_string())
+        self.set_attribute(&"Height".to_string(), &v.to_string())
     }
 
-    pub fn get_width(&self) -> Option<i32> { 
-       let value = get_attribute(&self.attributes, "Width", "").parse::<i32>();
-       if value.is_err() {
-        return Option::None;
-       }
+    pub fn get_width(&self) -> Option<i32> {
+        let value = get_attribute(&self.attributes, "Width", "").parse::<i32>();
+        if value.is_err() {
+            return Option::None;
+        }
         Option::Some(value.unwrap())
     }
-    
+
     pub fn get_height(&self) -> Option<i32> {
         let value = get_attribute(&self.attributes, "Height", "").parse::<i32>();
         if value.is_err() {

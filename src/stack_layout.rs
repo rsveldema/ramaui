@@ -7,15 +7,24 @@ pub struct StackLayout {
 
 
 impl UIAlloc for StackLayout {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> StackLayout {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> StackLayout {
         StackLayout {
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for StackLayout {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
+        println!("NOTICE: stacklayout-handle-event");
+
         self.common.handle_event(ev);
     }
 

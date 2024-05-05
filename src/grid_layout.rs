@@ -1,4 +1,8 @@
-use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{
+    events::Event,
+    ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef},
+    visitor::Visitor,
+};
 
 pub struct GridLayout {
     common: UICommon,
@@ -23,21 +27,28 @@ pub struct RowDefinition {
 }
 
 impl UIAlloc for GridLayout {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridLayout {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> GridLayout {
         GridLayout {
             _name: get_attribute(&attributes, "Name", ""),
             _background: get_attribute(&attributes, "Background", ""),
             _show_grid_lines: get_attribute(&attributes, "ShowGridLines", ""),
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for GridLayout {
-    fn handle_event(&self, ev: Event) {
-        self.common.handle_event(ev);
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
     }
 
+
+    fn handle_event(&self, ev: Event) {
+        println!("NOTICE: grid-handle-event");
+        self.common.handle_event(ev);
+    }
 
     fn set_parent(&mut self, parent: UIElementRef) {
         self.common.set_parent(parent);
@@ -57,7 +68,7 @@ impl UIElement for GridLayout {
         self.common.dump(indent);
     }
     fn add_content_string(&mut self, _: String) {}
-    
+
     fn visit(&self, visitor: &mut dyn Visitor) {
         visitor.start_visit_grid(self);
         self.common.visit(visitor);
@@ -66,14 +77,21 @@ impl UIElement for GridLayout {
 }
 
 impl UIAlloc for GridColumnDefinitions {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridColumnDefinitions {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> GridColumnDefinitions {
         GridColumnDefinitions {
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for GridColumnDefinitions {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
         self.common.handle_event(ev);
     }
@@ -104,17 +122,22 @@ impl UIElement for GridColumnDefinitions {
     }
 }
 
-
-
 impl UIAlloc for GridRowDefinitions {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridRowDefinitions {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> GridRowDefinitions {
         GridRowDefinitions {
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 
 impl UIElement for GridRowDefinitions {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
         self.common.handle_event(ev);
     }
@@ -145,16 +168,21 @@ impl UIElement for GridRowDefinitions {
     }
 }
 
-
-
 impl UIAlloc for ColumnDefinition {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> ColumnDefinition {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> ColumnDefinition {
         ColumnDefinition {
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 impl UIElement for ColumnDefinition {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
         self.common.handle_event(ev);
     }
@@ -185,15 +213,21 @@ impl UIElement for ColumnDefinition {
     }
 }
 
-    
 impl UIAlloc for RowDefinition {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> RowDefinition {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> RowDefinition {
         RowDefinition {
-            common: UICommon::new(attributes),
+            common: UICommon::new(attributes, id),
         }
     }
 }
 impl UIElement for RowDefinition {
+    fn get_id(&self) -> String {
+        self.common.get_id()
+    }
+    fn find_by_id(&self, id: String) -> Option<UIElementRef> {
+        self.common.find_by_id(id)
+    }
+
     fn handle_event(&self, ev: Event) {
         self.common.handle_event(ev);
     }

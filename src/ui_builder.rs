@@ -3,7 +3,9 @@ use gtk::{glib, prelude::*};
 use gtk::{Application, ApplicationWindow};
 
 use crate::callable::MainCallable;
+use crate::events::Event;
 use crate::stack_layout::StackLayout;
+use crate::ui_elements::UIElement;
 use crate::visitor::Visitor;
 use crate::{
     button::Button,
@@ -19,11 +21,7 @@ use crate::{
 
 const APP_ID: &str = "org.gtk_rs.HelloWorld1";
 
-fn open_ui(
-    app: &Application,
-    main_win: MainCallable,
-    files: &[gtk::gio::File],
-    _s: &str) {
+fn open_ui(app: &Application, main_win: MainCallable, files: &[gtk::gio::File], _s: &str) {
     for file in files {
         println!("Open--: {:?}", file.path());
     }
@@ -37,7 +35,7 @@ fn open_ui(
     }
 }
 
-fn build_ui(app: &Application) {
+fn build_ui(_app: &Application) {
     println!("build-ui");
     // Create a window and set the title
     /*let window = ApplicationWindow::builder()
@@ -50,7 +48,7 @@ fn build_ui(app: &Application) {
     panic!("unimplemented");
 
     // Present window
-   // window.present();
+    // window.present();
 }
 
 enum GtkPushed {
@@ -62,7 +60,7 @@ struct UIBuilder<'b> {
     root: Option<ApplicationWindow>,
     app: &'b Application,
     nested_gtk_items: Vec<Vec<GtkPushed>>,
-    _main_win: MainCallable
+    _main_win: MainCallable,
 }
 
 impl<'b> UIBuilder<'b> {
@@ -126,30 +124,22 @@ impl<'lifetime> Visitor for UIBuilder<'lifetime> {
         self.enter_scope()
     }
 
-    /*
-       let clicked_opt = b.get_attribute("Click");
-       if let Some(clicked) = clicked_opt {
-           let mw = self._main_win.clone();
-               let w = mw.lock();
-               match w {
-                   Ok(z) => {
-                       z.call_method(&clicked);
-                   }
-
-                   Err(e) => {
-                       panic!("failed to lock main win: {}", e);
-                   }
-               }
-    */
-
     fn visit_button(&mut self, b: &Button) {
         let gtk_b = gtk::Button::with_label(&b.get_text());
         let mw = self._main_win;
+        let id = b.get_id();
         gtk_b.connect_clicked(move |_gtk_button| {
-            //b.handle_event(Event::new("Button.Click"));
             let k = mw.lock();
             if let Some(tree) = k.get_tree() {
-
+                if let Some(b) = tree.find_by_id(id.to_string()) {
+                    let k = b.lock();
+                    println!("elt found = {}", k.get_ui_type_name());
+                    k.handle_event(Event::new("Button.Click", mw));
+                } else {
+                    println!("failed to find ui elt {}", id);
+                }
+            } else {
+                println!("failed to get tree?");
             }
         });
 
@@ -228,11 +218,7 @@ impl<'lifetime> Visitor for UIBuilder<'lifetime> {
     }
 }
 
-
-fn build_ui_from_xaml<'b>(
-    app: &'b Application,
-    main_win: MainCallable,
-) -> UIBuilder<'b> {
+fn build_ui_from_xaml<'b>(app: &'b Application, main_win: MainCallable) -> UIBuilder<'b> {
     let mut builder = UIBuilder::new(app, main_win);
     {
         if let Some(r) = main_win.lock().get_tree() {
@@ -240,7 +226,7 @@ fn build_ui_from_xaml<'b>(
                 k.lock().visit(&mut builder);
             } else {
                 panic!("no tree-root in main win");
-            }     
+            }
         } else {
             panic!("no tree in main win");
         }
@@ -248,9 +234,7 @@ fn build_ui_from_xaml<'b>(
     builder
 }
 
-pub fn start_interpreter(
-    win: MainCallable,
-) -> glib::ExitCode {
+pub fn start_interpreter(win: MainCallable) -> glib::ExitCode {
     // Create a new application
     let app = Application::builder()
         .application_id(APP_ID)
