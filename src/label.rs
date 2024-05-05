@@ -1,21 +1,19 @@
 use std::collections::HashMap;
 
-use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{events::Event, ui_elements::{tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct Label {
-    content: String,
     common: UICommon,
 }
 
 impl Label {    
-    pub fn get_content(&self) -> &String { &self.content } 
+    pub fn get_content(&self) -> String { self.common.get_attr("Text") } 
 }
 
 
 impl UIAlloc for Label {
     fn new(attributes: &HashMap<String, String>, id: String) -> Label {
         Label {
-            content: get_attribute(&attributes, "Text", ""),
             common: UICommon::new(attributes,  "Label", id),
         }
     }
@@ -58,13 +56,13 @@ impl UIElement for Label {
             "{}DUMP: {} - content:{}",
             tabs(indent),
             self.get_ui_type_name(),
-            self.content
+            self.common.get_attr("Text")
         );
         self.common.dump(indent);
     }
 
     fn add_content_string(&mut self, s: String) {
-        self.content = s;
+        self.common.set_attr("Text", s)
     }
     
     fn visit(&self, visitor: &mut dyn Visitor) {
