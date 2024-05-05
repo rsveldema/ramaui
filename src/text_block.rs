@@ -18,7 +18,7 @@ impl UIAlloc for TextBlock {
             _font_weight: get_attribute(&attributes, "TextWeight", ""),
             _font_size: get_attribute(&attributes, "FontSize", ""),
             _foreground: get_attribute(&attributes, "Foreground", ""),
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "TextBlock", id),
         }
     }
 }

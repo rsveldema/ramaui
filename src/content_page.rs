@@ -13,7 +13,7 @@ impl UIAlloc for ContentPage {
     fn new(attributes: &HashMap<String, String>, id: String) -> ContentPage {
         ContentPage {
             title: get_attribute(&attributes, "Title", "Title"),
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "ContentPage", id),
         }
     }
 }

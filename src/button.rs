@@ -12,7 +12,7 @@ impl UIAlloc for Button {
     fn new(attributes: &HashMap<String, String>, id: String) -> Button {
         Button {
             content: get_attribute(&attributes, "Content", ""),
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "Button", id),
         }
     }
 }

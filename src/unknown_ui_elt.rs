@@ -11,7 +11,7 @@ pub struct Unknown {
 impl UIAlloc for Unknown {
     fn new(attributes: &HashMap<String, String>, id: String) -> Unknown {
         Unknown {
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "Unknown", id),
         }
     }
 }

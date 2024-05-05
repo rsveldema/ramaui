@@ -11,7 +11,7 @@ pub struct StackLayout {
 impl UIAlloc for StackLayout {
     fn new(attributes: &HashMap<String, String>, id: String) -> StackLayout {
         StackLayout {
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "StackLayout", id),
         }
     }
 }

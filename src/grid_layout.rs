@@ -34,7 +34,7 @@ impl UIAlloc for GridLayout {
             _name: get_attribute(&attributes, "Name", ""),
             _background: get_attribute(&attributes, "Background", ""),
             _show_grid_lines: get_attribute(&attributes, "ShowGridLines", ""),
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "Grid", id),
         }
     }
 }
@@ -81,7 +81,7 @@ impl UIElement for GridLayout {
 impl UIAlloc for GridColumnDefinitions {
     fn new(attributes: &HashMap<String, String>, id: String) -> GridColumnDefinitions {
         GridColumnDefinitions {
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "GridColumnDefinitions", id),
         }
     }
 }
@@ -127,7 +127,7 @@ impl UIElement for GridColumnDefinitions {
 impl UIAlloc for GridRowDefinitions {
     fn new(attributes: &HashMap<String, String>, id: String) -> GridRowDefinitions {
         GridRowDefinitions {
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "GridRowDefinitions", id),
         }
     }
 }
@@ -173,7 +173,7 @@ impl UIElement for GridRowDefinitions {
 impl UIAlloc for ColumnDefinition {
     fn new(attributes: &HashMap<String, String>, id: String) -> ColumnDefinition {
         ColumnDefinition {
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "ColumnDefinition", id),
         }
     }
 }
@@ -218,7 +218,7 @@ impl UIElement for ColumnDefinition {
 impl UIAlloc for RowDefinition {
     fn new(attributes: &HashMap<String, String>, id: String) -> RowDefinition {
         RowDefinition {
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes, "RowDefinition", id),
         }
     }
 }

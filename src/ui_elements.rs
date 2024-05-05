@@ -31,7 +31,6 @@ impl UITree {
 
 pub type UITreeRef = &'static UITree;
 
-
 // utility func for extracting props from XAML
 pub fn get_attribute(
     attributes: &HashMap<String, String>,
@@ -50,7 +49,7 @@ pub trait UIAlloc {
 }
 
 pub trait UIElement {
-    fn get_id(&self) -> String;    
+    fn get_id(&self) -> String;
     fn find_by_id(&self, id: String) -> Option<UIElementRef>;
 
     fn get_ui_type_name(&self) -> &'static str;
@@ -68,21 +67,19 @@ pub trait UIElement {
 pub struct UICommon {
     parent: Option<UIElementRef>,
     attributes: HashMap<String, String>,
-    _width: String,
-    _height: String,
     children: Vec<UIElementRef>,
     id: String,
+    parent_type: String,
 }
 
 impl UICommon {
-    pub fn new(attributes: &HashMap<String, String>, id: String) -> UICommon {
+    pub fn new(attributes: &HashMap<String, String>, parent_type: &str, id: String) -> UICommon {
         UICommon {
             parent: Option::None,
             attributes: attributes.clone(),
             children: Vec::new(),
-            _width: get_attribute(attributes, "Width", ""),
-            _height: get_attribute(attributes, "Height", ""),
             id,
+            parent_type: parent_type.to_string(),
         }
     }
 
@@ -105,7 +102,7 @@ impl UICommon {
         self.parent = Some(parent);
     }
 
-    pub fn handle_event(&self, ev: Event) {                
+    pub fn handle_event(&self, ev: Event) {
         if let Some(p) = self.get_attribute(&ev.get_name()) {
             let mc = ev.get_callable();
             mc.lock().call_method(p.as_str());
@@ -116,16 +113,23 @@ impl UICommon {
         }
     }
 
+    fn get_prop_name(&self, prop: &str) -> String {
+        format!("{}.{}", self.parent_type.to_string(), prop)
+    }
+
     pub fn set_width(&mut self, v: i32) {
-        self.set_attribute(&"Width".to_string(), &v.to_string())
+        let pn = self.get_prop_name("Width");
+        self.set_attribute(pn.as_str(), &v.to_string())
     }
 
     pub fn set_height(&mut self, v: i32) {
-        self.set_attribute(&"Height".to_string(), &v.to_string())
+        let pn = self.get_prop_name("Height");
+        self.set_attribute(pn.as_str(), &v.to_string())
     }
 
     pub fn get_width(&self) -> Option<i32> {
-        let value = get_attribute(&self.attributes, "Width", "").parse::<i32>();
+        let pn = self.get_prop_name("Width");
+        let value = get_attribute(&self.attributes, pn.as_str(), "").parse::<i32>();
         if value.is_err() {
             return Option::None;
         }
@@ -133,7 +137,9 @@ impl UICommon {
     }
 
     pub fn get_height(&self) -> Option<i32> {
-        let value = get_attribute(&self.attributes, "Height", "").parse::<i32>();
+        let pn = self.get_prop_name("Height");
+
+        let value = get_attribute(&self.attributes, pn.as_str(), "").parse::<i32>();
         if value.is_err() {
             return Option::None;
         }
@@ -151,8 +157,9 @@ impl UICommon {
         return self.attributes.get(s);
     }
 
-    pub fn set_attribute(&mut self, property_name: &String, new_value: &String) {
-        self.attributes.insert(property_name.to_string(), new_value.to_string());
+    pub fn set_attribute(&mut self, property_name: &str, new_value: &String) {
+        self.attributes
+            .insert(property_name.to_string(), new_value.to_string());
     }
 
     pub fn add_child(&mut self, child: UIElementRef, me: UIElementRef) {

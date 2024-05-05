@@ -16,7 +16,7 @@ impl UIAlloc for Label {
     fn new(attributes: &HashMap<String, String>, id: String) -> Label {
         Label {
             content: get_attribute(&attributes, "Text", ""),
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(attributes,  "Label", id),
         }
     }
 }

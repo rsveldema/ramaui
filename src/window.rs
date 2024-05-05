@@ -12,9 +12,9 @@ pub struct Window {
 impl UIAlloc for Window {
     fn new(attributes: &HashMap<String, String>, id: String) -> Window {
         let mut w = Window {
-            title: get_attribute(&attributes, "Title", "Title"),
-            _window_style: get_attribute(&attributes, "WindowStyle", ""),
-            common: UICommon::new(&attributes, id),
+            title: get_attribute(&attributes, "Window.Title", "Title"),
+            _window_style: get_attribute(&attributes, "Window.WindowStyle", ""),
+            common: UICommon::new(&attributes, "Window", id),
         };
         
         if w.common.get_width().is_none() {
