@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct Window {
@@ -8,11 +10,11 @@ pub struct Window {
 
 
 impl UIAlloc for Window {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Window {
+    fn new(attributes: &HashMap<String, String>, id: String) -> Window {
         let mut w = Window {
             title: get_attribute(&attributes, "Title", "Title"),
             _window_style: get_attribute(&attributes, "WindowStyle", ""),
-            common: UICommon::new(attributes, id),
+            common: UICommon::new(&attributes, id),
         };
         
         if w.common.get_width().is_none() {
@@ -53,8 +55,8 @@ impl UIElement for Window {
     }
 
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
-        self.common.get_attribute(s)
+    fn get_attribute(&self, s: &str) -> Option<&String> {
+        self.common.get_attribute(&s.to_string())
     }
     fn get_ui_type_name(&self) -> &'static str {
         "Window"

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct TextBlock {
@@ -10,7 +12,7 @@ pub struct TextBlock {
 
 
 impl UIAlloc for TextBlock {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> TextBlock {
+    fn new(attributes: &HashMap<String, String>, id: String) -> TextBlock {
         TextBlock {
             text: get_attribute(&attributes, "Text", ""),
             _font_weight: get_attribute(&attributes, "TextWeight", ""),
@@ -40,7 +42,7 @@ impl UIElement for TextBlock {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     

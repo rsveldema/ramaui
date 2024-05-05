@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     events::Event,
     ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef},
@@ -27,7 +29,7 @@ pub struct RowDefinition {
 }
 
 impl UIAlloc for GridLayout {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> GridLayout {
+    fn new(attributes: &HashMap<String, String>, id: String) -> GridLayout {
         GridLayout {
             _name: get_attribute(&attributes, "Name", ""),
             _background: get_attribute(&attributes, "Background", ""),
@@ -54,7 +56,7 @@ impl UIElement for GridLayout {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -77,7 +79,7 @@ impl UIElement for GridLayout {
 }
 
 impl UIAlloc for GridColumnDefinitions {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> GridColumnDefinitions {
+    fn new(attributes: &HashMap<String, String>, id: String) -> GridColumnDefinitions {
         GridColumnDefinitions {
             common: UICommon::new(attributes, id),
         }
@@ -100,7 +102,7 @@ impl UIElement for GridColumnDefinitions {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -123,7 +125,7 @@ impl UIElement for GridColumnDefinitions {
 }
 
 impl UIAlloc for GridRowDefinitions {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> GridRowDefinitions {
+    fn new(attributes: &HashMap<String, String>, id: String) -> GridRowDefinitions {
         GridRowDefinitions {
             common: UICommon::new(attributes, id),
         }
@@ -146,7 +148,7 @@ impl UIElement for GridRowDefinitions {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -169,7 +171,7 @@ impl UIElement for GridRowDefinitions {
 }
 
 impl UIAlloc for ColumnDefinition {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> ColumnDefinition {
+    fn new(attributes: &HashMap<String, String>, id: String) -> ColumnDefinition {
         ColumnDefinition {
             common: UICommon::new(attributes, id),
         }
@@ -191,7 +193,7 @@ impl UIElement for ColumnDefinition {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
@@ -214,7 +216,7 @@ impl UIElement for ColumnDefinition {
 }
 
 impl UIAlloc for RowDefinition {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> RowDefinition {
+    fn new(attributes: &HashMap<String, String>, id: String) -> RowDefinition {
         RowDefinition {
             common: UICommon::new(attributes, id),
         }
@@ -236,7 +238,7 @@ impl UIElement for RowDefinition {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {

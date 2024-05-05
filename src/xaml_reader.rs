@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::{collections::HashMap, fs::File};
 use std::io::BufReader;
 use parking_lot::Mutex;
 use std::sync::Arc;
@@ -6,27 +6,34 @@ use xml::reader::{EventReader, XmlEvent};
 
 use crate::{button::Button, content_page::ContentPage, grid_layout::{ColumnDefinition, GridColumnDefinitions, GridLayout, GridRowDefinitions, RowDefinition}, label::Label, stack_layout::StackLayout, text_block::TextBlock, ui_elements::{UIAlloc, UIElement, UIElementRef}, unknown_ui_elt::Unknown, window::Window};
 
-fn static_leaker<T: UIElement + UIAlloc + 'static>(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> UIElementRef
+fn static_leaker<T: UIElement + UIAlloc + 'static>(attributes: &HashMap<String, String>, id: String) -> UIElementRef
 {
-    let inner = T::new(attributes, id);
+    let inner = T::new(&attributes, id);
     let outer = Arc::new(Mutex::new(inner));
     return outer;
 }
 
-fn create_ui_element(name: &str, attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> UIElementRef {
+fn create_ui_element(name: &str, raw_attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> UIElementRef {
+    let mut attributes = HashMap::<String, String>::new();
+
+    for x in raw_attributes {
+        let k = format!("{}.{}", name, x.name);
+        attributes.insert(k, x.value);
+    }
+
     match name {
-        "Label" => static_leaker::<Label>(attributes, id),
-        "ContentPage" => static_leaker::<ContentPage>(attributes, id),
-        "Button" =>  static_leaker::<Button>(attributes, id),
-        "Window" => static_leaker::<Window>(attributes, id),
-        "Grid" => static_leaker::<GridLayout>(attributes, id),
-        "StackPanel" => static_leaker::<StackLayout>(attributes, id),
-        "Grid.ColumnDefinitions" =>  static_leaker::<GridColumnDefinitions>(attributes, id),
-        "Grid.RowDefinitions" => static_leaker::<GridRowDefinitions>(attributes, id),
-        "ColumnDefinition" => static_leaker::<ColumnDefinition>(attributes, id),
-        "RowDefinition" => static_leaker::<RowDefinition>(attributes, id),
-        "TextBlock" => static_leaker::<TextBlock>(attributes, id),
-        _ => static_leaker::<Unknown>(attributes, id),
+        "Label" => static_leaker::<Label>(&attributes, id),
+        "ContentPage" => static_leaker::<ContentPage>(&attributes, id),
+        "Button" =>  static_leaker::<Button>(&attributes, id),
+        "Window" => static_leaker::<Window>(&attributes, id),
+        "Grid" => static_leaker::<GridLayout>(&attributes, id),
+        "StackPanel" => static_leaker::<StackLayout>(&attributes, id),
+        "Grid.ColumnDefinitions" =>  static_leaker::<GridColumnDefinitions>(&attributes, id),
+        "Grid.RowDefinitions" => static_leaker::<GridRowDefinitions>(&attributes, id),
+        "ColumnDefinition" => static_leaker::<ColumnDefinition>(&attributes, id),
+        "RowDefinition" => static_leaker::<RowDefinition>(&attributes, id),
+        "TextBlock" => static_leaker::<TextBlock>(&attributes, id),
+        _ => static_leaker::<Unknown>(&attributes, id),
     }
 }
 

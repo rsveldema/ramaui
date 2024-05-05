@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{events::Event, ui_elements::{tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 
@@ -7,7 +9,7 @@ pub struct Unknown {
 
 
 impl UIAlloc for Unknown {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Unknown {
+    fn new(attributes: &HashMap<String, String>, id: String) -> Unknown {
         Unknown {
             common: UICommon::new(attributes, id),
         }
@@ -31,8 +33,8 @@ impl UIElement for Unknown {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
-        self.common.get_attribute(s)
+    fn get_attribute(&self, s: &str) -> Option<&String> {
+        self.common.get_attribute(&s.to_string())
     }
     fn get_ui_type_name(&self) -> &'static str {
         "UnknownElementType"

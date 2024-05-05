@@ -1,7 +1,7 @@
 use std::{i32, sync::Arc};
 
 use parking_lot::Mutex;
-use xml::{attribute::OwnedAttribute, name::OwnedName};
+use std::collections::HashMap;
 
 use crate::{events::Event, visitor::Visitor};
 
@@ -31,22 +31,22 @@ impl UITree {
 
 pub type UITreeRef = &'static UITree;
 
+
 // utility func for extracting props from XAML
 pub fn get_attribute(
-    attributes: &[xml::attribute::OwnedAttribute],
+    attributes: &HashMap<String, String>,
     name: &str,
     default_str: &str,
 ) -> String {
-    for a in attributes.iter() {
-        if a.name.local_name == name {
-            return a.value.to_string();
-        }
+    if let Some(ret) = attributes.get(name) {
+        return ret.to_string();
     }
+
     default_str.to_string()
 }
 
 pub trait UIAlloc {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> Self;
+    fn new(attributes: &HashMap<String, String>, id: String) -> Self;
 }
 
 pub trait UIElement {
@@ -58,7 +58,7 @@ pub trait UIElement {
     fn set_parent(&mut self, parent: UIElementRef);
     fn dump(&self, indent: i32);
     fn add_content_string(&mut self, s: String);
-    fn get_attribute(&self, s: &str) -> Option<String>;
+    fn get_attribute(&self, s: &str) -> Option<&String>;
 
     fn visit(&self, visitor: &mut dyn Visitor);
 
@@ -67,7 +67,7 @@ pub trait UIElement {
 
 pub struct UICommon {
     parent: Option<UIElementRef>,
-    attributes: Vec<xml::attribute::OwnedAttribute>,
+    attributes: HashMap<String, String>,
     _width: String,
     _height: String,
     children: Vec<UIElementRef>,
@@ -75,13 +75,13 @@ pub struct UICommon {
 }
 
 impl UICommon {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> UICommon {
+    pub fn new(attributes: &HashMap<String, String>, id: String) -> UICommon {
         UICommon {
             parent: Option::None,
             attributes: attributes.clone(),
             children: Vec::new(),
-            _width: get_attribute(&attributes, "Width", ""),
-            _height: get_attribute(&attributes, "Height", ""),
+            _width: get_attribute(attributes, "Width", ""),
+            _height: get_attribute(attributes, "Height", ""),
             id,
         }
     }
@@ -147,26 +147,12 @@ impl UICommon {
         }
     }
 
-    pub fn get_attribute(&self, s: &str) -> Option<String> {
-        for attr in self.attributes.iter() {
-            if attr.name.local_name.eq(s) {
-                return Option::Some(attr.value.clone());
-            }
-        }
-        Option::None
+    pub fn get_attribute(&self, s: &str) -> Option<&String> {
+        return self.attributes.get(s);
     }
 
     pub fn set_attribute(&mut self, property_name: &String, new_value: &String) {
-        for attr in self.attributes.iter_mut() {
-            if attr.name.local_name.eq(property_name) {
-                attr.value = new_value.clone();
-                return;
-            }
-        }
-
-        let owned_name = OwnedName::local(property_name);
-        let value = OwnedAttribute::new(owned_name, new_value);
-        self.attributes.push(value);
+        self.attributes.insert(property_name.to_string(), new_value.to_string());
     }
 
     pub fn add_child(&mut self, child: UIElementRef, me: UIElementRef) {

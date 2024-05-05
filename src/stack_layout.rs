@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{events::Event, ui_elements::{tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 
@@ -7,7 +9,7 @@ pub struct StackLayout {
 
 
 impl UIAlloc for StackLayout {
-    fn new(attributes: Vec<xml::attribute::OwnedAttribute>, id: String) -> StackLayout {
+    fn new(attributes: &HashMap<String, String>, id: String) -> StackLayout {
         StackLayout {
             common: UICommon::new(attributes, id),
         }
@@ -33,7 +35,7 @@ impl UIElement for StackLayout {
         self.common.set_parent(parent);
     }
 
-    fn get_attribute(&self, s: &str) -> Option<String> {
+    fn get_attribute(&self, s: &str) -> Option<&String> {
         self.common.get_attribute(s)
     }
     
