@@ -36,7 +36,7 @@ impl UIElement for StackLayout {
     }
 
     fn get_attribute(&self, s: &str) -> Option<&String> {
-        self.common.get_attribute(s)
+        self.common.get_attr_opt(s)
     }
     
     fn get_ui_type_name(&self) -> &'static str {

@@ -1,17 +1,15 @@
 use std::collections::HashMap;
 
-use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{events::Event, ui_elements::{tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 
 pub struct Button {
-    content: String,
     common: UICommon,
 }
 
 impl UIAlloc for Button {
     fn new(attributes: &HashMap<String, String>, id: String) -> Button {
         Button {
-            content: get_attribute(&attributes, "Content", ""),
             common: UICommon::new(attributes, "Button", id),
         }
     }
@@ -19,11 +17,16 @@ impl UIAlloc for Button {
 
 impl Button {
     pub fn get_text(&self) -> String { 
-        self.content.to_string()
+        self.common.get_attr("Content")
     }
 }
 
 impl UIElement for Button {
+
+    fn add_content_string(&mut self, s: String) {
+        self.common.set_attr("Content", s);
+    }
+
     fn get_id(&self) -> String {
         self.common.get_id()
     }
@@ -42,7 +45,7 @@ impl UIElement for Button {
     }
 
     fn get_attribute(&self, s: &str) -> Option<&String> {
-        self.common.get_attribute(s)
+        self.common.get_attr_opt(s)
     }
     
     fn get_ui_type_name(&self) -> &'static str {
@@ -58,9 +61,6 @@ impl UIElement for Button {
         self.common.dump(indent);
     }
 
-    fn add_content_string(&mut self, s: String) {
-        self.content = s;
-    }
 
     fn visit(&self, visitor: &mut dyn Visitor) {
         visitor.start_visit_button(self);

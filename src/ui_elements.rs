@@ -103,7 +103,7 @@ impl UICommon {
     }
 
     pub fn handle_event(&self, ev: Event) {
-        if let Some(p) = self.get_attribute(&ev.get_name()) {
+        if let Some(p) = self.internal_get_attribute(&ev.get_name()) {
             let mc = ev.get_callable();
             mc.lock().call_method(p.as_str());
         }
@@ -117,14 +117,31 @@ impl UICommon {
         format!("{}.{}", self.parent_type.to_string(), prop)
     }
 
+    pub fn get_attr_opt(&self, prop_name: &str) -> Option<&String> {
+        let pn = self.get_prop_name(prop_name);
+        self.internal_get_attribute(pn.as_str())
+    }
+
+    pub fn get_attr(&self, prop_name: &str) -> String {
+        let x = self.get_attr_opt(prop_name);
+        if x.is_none() {
+            return "".to_string();
+        }
+        x.unwrap().to_string()
+    }
+
+    pub fn set_attr(&mut self, prop: &str, value: String) {
+        let pn = self.get_prop_name(prop);
+        self.internal_set_attribute(pn.as_str(), &value)
+    }
+
+
     pub fn set_width(&mut self, v: i32) {
-        let pn = self.get_prop_name("Width");
-        self.set_attribute(pn.as_str(), &v.to_string())
+        self.set_attr("Width", v.to_string());
     }
 
     pub fn set_height(&mut self, v: i32) {
-        let pn = self.get_prop_name("Height");
-        self.set_attribute(pn.as_str(), &v.to_string())
+        self.set_attr("Height", v.to_string());
     }
 
     pub fn get_width(&self) -> Option<i32> {
@@ -153,11 +170,11 @@ impl UICommon {
         }
     }
 
-    pub fn get_attribute(&self, s: &str) -> Option<&String> {
+    fn internal_get_attribute(&self, s: &str) -> Option<&String> {
         return self.attributes.get(s);
     }
 
-    pub fn set_attribute(&mut self, property_name: &str, new_value: &String) {
+    fn internal_set_attribute(&mut self, property_name: &str, new_value: &String) {
         self.attributes
             .insert(property_name.to_string(), new_value.to_string());
     }
