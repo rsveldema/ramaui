@@ -1,4 +1,4 @@
-use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct Window {
     title: String,
@@ -6,8 +6,9 @@ pub struct Window {
     common: UICommon,
 }
 
-impl Window {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Window {
+
+impl UIAlloc for Window {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Window {
         let mut w = Window {
             title: get_attribute(&attributes, "Title", "Title"),
             _window_style: get_attribute(&attributes, "WindowStyle", ""),
@@ -23,6 +24,9 @@ impl Window {
         }
         w
     }
+}
+
+impl Window {
 
     pub fn get_title(&self) -> &String { &self.title }
     pub fn get_width(&self) -> i32 { self.common.get_width().unwrap() }
@@ -32,6 +36,15 @@ impl Window {
 }
 
 impl UIElement for Window {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
 
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
@@ -39,8 +52,8 @@ impl UIElement for Window {
     fn get_ui_type_name(&self) -> &'static str {
         "Window"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     fn dump(&self, indent: i32) {
         println!(

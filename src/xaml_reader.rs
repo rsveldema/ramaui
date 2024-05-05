@@ -1,26 +1,32 @@
 use std::fs::File;
 use std::io::BufReader;
-use std::rc::Rc;
-use std::sync::Mutex;
+use parking_lot::Mutex;
+use std::sync::Arc;
 use xml::reader::{EventReader, XmlEvent};
 
-use crate::{button::Button, content_page::ContentPage, grid_layout::{ColumnDefinition, GridColumnDefinitions, GridLayout, GridRowDefinitions, RowDefinition}, label::Label, stack_layout::StackLayout, text_block::TextBlock, ui_elements::UIElementRef, unknown_ui_elt::Unknown, window::Window};
+use crate::{button::Button, content_page::ContentPage, grid_layout::{ColumnDefinition, GridColumnDefinitions, GridLayout, GridRowDefinitions, RowDefinition}, label::Label, stack_layout::StackLayout, text_block::TextBlock, ui_elements::{UIAlloc, UIElement, UIElementRef}, unknown_ui_elt::Unknown, window::Window};
 
+fn static_leaker<T: UIElement + UIAlloc + 'static>(attributes: Vec<xml::attribute::OwnedAttribute>) -> UIElementRef
+{
+    let inner = T::new(attributes);
+    let outer = Arc::new(Mutex::new(inner));
+    return outer;
+}
 
 fn create_ui_element(name: &str, attributes: Vec<xml::attribute::OwnedAttribute>) -> UIElementRef {
     match name {
-        "Label" => Rc::new(Mutex::new(Label::new(attributes))),
-        "ContentPage" => Rc::new(Mutex::new(ContentPage::new(attributes))),
-        "Button" => Rc::new(Mutex::new(Button::new(attributes))),
-        "Window" => Rc::new(Mutex::new(Window::new(attributes))),
-        "Grid" => Rc::new(Mutex::new(GridLayout::new(attributes))),
-        "StackPanel" => Rc::new(Mutex::new(StackLayout::new(attributes))),
-        "Grid.ColumnDefinitions" => Rc::new(Mutex::new(GridColumnDefinitions::new(attributes))),
-        "Grid.RowDefinitions" => Rc::new(Mutex::new(GridRowDefinitions::new(attributes))),
-        "ColumnDefinition" => Rc::new(Mutex::new(ColumnDefinition::new(attributes))),
-        "RowDefinition" => Rc::new(Mutex::new(RowDefinition::new(attributes))),
-        "TextBlock" => Rc::new(Mutex::new(TextBlock::new(attributes))),
-        _ => Rc::new(Mutex::new(Unknown::new(attributes))),
+        "Label" => static_leaker::<Label>(attributes),
+        "ContentPage" => static_leaker::<ContentPage>(attributes),
+        "Button" =>  static_leaker::<Button>(attributes),
+        "Window" => static_leaker::<Window>(attributes),
+        "Grid" => static_leaker::<GridLayout>(attributes),
+        "StackPanel" => static_leaker::<StackLayout>(attributes),
+        "Grid.ColumnDefinitions" =>  static_leaker::<GridColumnDefinitions>(attributes),
+        "Grid.RowDefinitions" => static_leaker::<GridRowDefinitions>(attributes),
+        "ColumnDefinition" => static_leaker::<ColumnDefinition>(attributes),
+        "RowDefinition" => static_leaker::<RowDefinition>(attributes),
+        "TextBlock" => static_leaker::<TextBlock>(attributes),
+        _ => static_leaker::<Unknown>(attributes),
     }
 }
 
@@ -46,10 +52,11 @@ pub fn read_xaml(filename: &String) -> Result<UIElementRef, std::io::Error> {
                 depth += 1;
 
                 let new_elt = create_ui_element(&name.local_name, attributes);
-                if !parse_stack.is_empty() {
-                    if let Some(last) = parse_stack.last_mut() {
-                        last.lock().unwrap().add_child(new_elt.clone())
-                    }
+                
+                let last = parse_stack.last();
+                if let Some(l) = last {
+                    let mut k = l.lock();
+                    k.add_child(new_elt.clone(), l.clone());
                 }
                 parse_stack.push(new_elt);
             }
@@ -62,9 +69,10 @@ pub fn read_xaml(filename: &String) -> Result<UIElementRef, std::io::Error> {
                 }
             }
             Ok(XmlEvent::Characters(s)) => {
-                if !parse_stack.is_empty() {
-                    let last = parse_stack.last();
-                    last.unwrap().lock().unwrap().add_content_string(s);
+                let last = parse_stack.last();
+                if let Some(l) = last {
+                    let mut k = l.lock();
+                    k.add_content_string(s);
                 }
             }
             Err(e) => {
@@ -76,8 +84,13 @@ pub fn read_xaml(filename: &String) -> Result<UIElementRef, std::io::Error> {
         }
     }
 
-    let last = parse_stack.last();
-    Ok(last.unwrap().clone())
+    assert!(parse_stack.len() == 1);
+
+    if let Some(last) = parse_stack.last()
+    {
+        return Result::Ok( last.clone() );
+    }
+    Result::Err(std::io::Error::new(std::io::ErrorKind::NotFound, "unknown parse stack problem"))
 }
 
 
@@ -91,7 +104,7 @@ mod tests {
         let tree = xaml_reader::read_xaml(&"tests/labeltest.xaml".to_string());        
         if let Result::Ok(t) = tree {
             println!("TREE ---> ");
-            let tree = t.lock().unwrap();
+            let tree = t.lock();
             assert!(tree.get_ui_type_name() == "Window");
             tree.dump(0)
             

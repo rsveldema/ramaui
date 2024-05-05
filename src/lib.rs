@@ -82,6 +82,7 @@ pub fn inspectable(_meta: TokenStream, code: TokenStream) -> TokenStream {
             func: fn(&#name)
         }
         struct #name {
+            tree: Option<UITreeRef>,
             info: Vec<#method_info>
         }
 
@@ -90,6 +91,7 @@ pub fn inspectable(_meta: TokenStream, code: TokenStream) -> TokenStream {
                 type MethodInfo = #method_info;
                 type SelfType = #name;
                 #name {
+                    tree: Option::None,
                     info: vec![#(#funcs),*]
                 }
             }
@@ -108,6 +110,15 @@ pub fn inspectable(_meta: TokenStream, code: TokenStream) -> TokenStream {
         use callable::CallableByName;
 
         impl CallableByName for #name {
+
+            fn get_tree(&self) -> Option<UITreeRef> {
+                return self.tree;
+            }
+
+            fn set_tree(&mut self, tree: Option<UITreeRef>)
+            {
+                self.tree = tree;
+            }
 
             fn call_method(&self, name: &str) {
                 let opt = self.find_method(name);

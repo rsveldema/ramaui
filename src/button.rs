@@ -1,4 +1,4 @@
-use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 
 pub struct Button {
@@ -6,20 +6,30 @@ pub struct Button {
     common: UICommon,
 }
 
-impl Button {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Button {
+impl UIAlloc for Button {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Button {
         Button {
             content: get_attribute(&attributes, "Content", ""),
             common: UICommon::new(attributes),
         }
     }
+}
 
+impl Button {
     pub fn get_text(&self) -> String { 
         self.content.to_string()
     }
 }
 
 impl UIElement for Button {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
@@ -28,8 +38,8 @@ impl UIElement for Button {
         "Button"
     }
     
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     
     fn dump(&self, indent: i32) {

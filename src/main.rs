@@ -13,9 +13,11 @@ mod window;
 mod xaml_reader;
 mod ui_builder;
 mod callable;
-
+mod events;
+use parking_lot::Mutex;
 use ramaui::inspectable;
 use ui_builder::start_interpreter;
+use ui_elements::{UIElementRef, UITree, UITreeRef};
 
 
 fn usage() {
@@ -39,6 +41,13 @@ impl MainWindow {
     }
 }
 
+fn create_tree(root_elt_ref: UIElementRef) -> Option<UITreeRef> {
+    let mut tree = UITree::new();
+    tree.root = Some(root_elt_ref.clone());
+    let r = Box::leak(Box::new(tree));
+    return Some(r);
+}
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -48,17 +57,20 @@ fn main() {
 
     let filename = &args[1];
 
-    let tree = xaml_reader::read_xaml(filename);
-    match tree {
+    let root_elt_ref = xaml_reader::read_xaml(filename);
+    match root_elt_ref {
         Result::Ok(t) => {
-            t.as_ref().lock().unwrap().dump(0);
+            t.lock().dump(0);
 
-            let win:&'static mut MainWindow = Box::leak::<'static>(Box::new(MainWindow::new()));
+            let win = Box::leak::<'static>(Box::new(Mutex::new(MainWindow::new())));
 
-            let cwin: &'static mut dyn CallableByName = win as &'static mut dyn CallableByName;
-            let w: std::rc::Rc<std::sync::Mutex<&'static dyn CallableByName>>  = std::rc::Rc::new(std::sync::Mutex::new(cwin));
+            {
+                let mut r = win.lock();
+                let tree = create_tree(t);
+                r.set_tree(tree);
+            }
 
-            start_interpreter(&t, w);
+            start_interpreter(win);
         }
         Result::Err(err) => {
             println!("failed to read xml: {}", err)

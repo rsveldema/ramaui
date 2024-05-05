@@ -1,12 +1,13 @@
-use crate::{ui_elements::{tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{events::Event, ui_elements::{tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 
 pub struct Unknown {
     common: UICommon,
 }
 
-impl Unknown {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Unknown {
+
+impl UIAlloc for Unknown {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> Unknown {
         Unknown {
             common: UICommon::new(attributes),
         }
@@ -14,14 +15,23 @@ impl Unknown {
 }
 
 impl UIElement for Unknown {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
         "UnknownElementType"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent)
     }
     fn dump(&self, indent: i32) {
         println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());

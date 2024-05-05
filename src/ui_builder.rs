@@ -1,13 +1,9 @@
-use std::rc::Rc;
-use std::sync::Mutex;
-
 use gtk::gio::ApplicationFlags;
 use gtk::{glib, prelude::*};
 use gtk::{Application, ApplicationWindow};
 
-use crate::callable::CallableByName;
+use crate::callable::MainCallable;
 use crate::stack_layout::StackLayout;
-use crate::ui_elements::{UIElement, UIElementRef};
 use crate::visitor::Visitor;
 use crate::{
     button::Button,
@@ -25,16 +21,14 @@ const APP_ID: &str = "org.gtk_rs.HelloWorld1";
 
 fn open_ui(
     app: &Application,
-    main_win: Rc<Mutex<&'static dyn CallableByName>>,
+    main_win: MainCallable,
     files: &[gtk::gio::File],
-    _s: &str,
-    root: UIElementRef,
-) {
+    _s: &str) {
     for file in files {
         println!("Open--: {:?}", file.path());
     }
 
-    let builder = build_ui_from_xaml(app, root, main_win);
+    let builder = build_ui_from_xaml(app, main_win);
     let window_opt = builder.root;
     if let Some(window) = window_opt {
         window.present();
@@ -46,15 +40,17 @@ fn open_ui(
 fn build_ui(app: &Application) {
     println!("build-ui");
     // Create a window and set the title
-    let window = ApplicationWindow::builder()
+    /*let window = ApplicationWindow::builder()
         .application(app)
         .title("My GTK App")
         .default_width(320)
         .default_height(200)
         .build();
+    */
+    panic!("unimplemented");
 
     // Present window
-    window.present();
+   // window.present();
 }
 
 enum GtkPushed {
@@ -66,16 +62,16 @@ struct UIBuilder<'b> {
     root: Option<ApplicationWindow>,
     app: &'b Application,
     nested_gtk_items: Vec<Vec<GtkPushed>>,
-    _main_win: Rc<Mutex<&'static dyn CallableByName>>,
+    _main_win: MainCallable
 }
 
 impl<'b> UIBuilder<'b> {
-    fn new(app: &'b Application, win: Rc<Mutex<&'static dyn CallableByName>>) -> UIBuilder<'b> {
+    fn new(app: &'b Application, win: MainCallable) -> UIBuilder<'b> {
         UIBuilder {
             root: Option::None,
             app,
             nested_gtk_items: Vec::new(),
-            _main_win: win.clone(),
+            _main_win: win,
         }
     }
 
@@ -130,24 +126,32 @@ impl<'lifetime> Visitor for UIBuilder<'lifetime> {
         self.enter_scope()
     }
 
-    fn visit_button(&mut self, b: &Button) {
-        let clicked_opt = b.get_attribute("Click");
-        let gtk_b = gtk::Button::with_label(&b.get_text());
-        if let Some(clicked) = clicked_opt {
-            let mw = self._main_win.clone();
-            gtk_b.connect_clicked(move |_b| {
-                let w = mw.lock();
-                match w {
-                    Ok(z) => {
-                        z.call_method(&clicked);
-                    }
+    /*
+       let clicked_opt = b.get_attribute("Click");
+       if let Some(clicked) = clicked_opt {
+           let mw = self._main_win.clone();
+               let w = mw.lock();
+               match w {
+                   Ok(z) => {
+                       z.call_method(&clicked);
+                   }
 
-                    Err(e) => {
-                        panic!("failed to lock main win: {}", e);
-                    }
-                }
-            });
-        }
+                   Err(e) => {
+                       panic!("failed to lock main win: {}", e);
+                   }
+               }
+    */
+
+    fn visit_button(&mut self, b: &Button) {
+        let gtk_b = gtk::Button::with_label(&b.get_text());
+        let mw = self._main_win;
+        gtk_b.connect_clicked(move |_gtk_button| {
+            //b.handle_event(Event::new("Button.Click"));
+            let k = mw.lock();
+            if let Some(tree) = k.get_tree() {
+
+            }
+        });
 
         self.leave_scope();
         self.last_scope().push(GtkPushed::Button(gtk_b));
@@ -224,19 +228,28 @@ impl<'lifetime> Visitor for UIBuilder<'lifetime> {
     }
 }
 
+
 fn build_ui_from_xaml<'b>(
     app: &'b Application,
-    root: UIElementRef,
-    main_win: Rc<Mutex<&'static dyn CallableByName>>,
+    main_win: MainCallable,
 ) -> UIBuilder<'b> {
-    let mut builder = UIBuilder::new(app, main_win.clone());
-    root.as_ref().lock().unwrap().visit(&mut builder);
+    let mut builder = UIBuilder::new(app, main_win);
+    {
+        if let Some(r) = main_win.lock().get_tree() {
+            if let Some(k) = &r.root {
+                k.lock().visit(&mut builder);
+            } else {
+                panic!("no tree-root in main win");
+            }     
+        } else {
+            panic!("no tree in main win");
+        }
+    }
     builder
 }
 
 pub fn start_interpreter(
-    root: &UIElementRef,
-    win: Rc<Mutex<&'static dyn CallableByName>>,
+    win: MainCallable,
 ) -> glib::ExitCode {
     // Create a new application
     let app = Application::builder()
@@ -245,12 +258,10 @@ pub fn start_interpreter(
         .build();
 
     // clone to get rid of the borrow of the parameter
-    let root_clone: Rc<Mutex<dyn crate::ui_elements::UIElement>> = root.clone();
-    let win_clone = win.clone();
     app.connect_open(
         move |app: &Application, files: &[gtk::gio::File], s: &str| {
             // clone k to pass into open-ui
-            open_ui(app, win_clone.clone(), files, s, root_clone.clone());
+            open_ui(app, win, files, s);
         },
     );
 

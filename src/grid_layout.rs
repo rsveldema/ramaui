@@ -1,4 +1,4 @@
-use crate::{ui_elements::{get_attribute, tabs, UICommon, UIElement, UIElementRef}, visitor::Visitor};
+use crate::{events::Event, ui_elements::{get_attribute, tabs, UIAlloc, UICommon, UIElement, UIElementRef}, visitor::Visitor};
 
 pub struct GridLayout {
     common: UICommon,
@@ -22,8 +22,8 @@ pub struct RowDefinition {
     common: UICommon,
 }
 
-impl GridLayout {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridLayout {
+impl UIAlloc for GridLayout {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridLayout {
         GridLayout {
             _name: get_attribute(&attributes, "Name", ""),
             _background: get_attribute(&attributes, "Background", ""),
@@ -34,14 +34,23 @@ impl GridLayout {
 }
 
 impl UIElement for GridLayout {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
         "Grid"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     fn dump(&self, indent: i32) {
         println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
@@ -56,8 +65,8 @@ impl UIElement for GridLayout {
     }
 }
 
-impl GridColumnDefinitions {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridColumnDefinitions {
+impl UIAlloc for GridColumnDefinitions {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridColumnDefinitions {
         GridColumnDefinitions {
             common: UICommon::new(attributes),
         }
@@ -65,14 +74,22 @@ impl GridColumnDefinitions {
 }
 
 impl UIElement for GridColumnDefinitions {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
         "Grid_ColumnDefinitions"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     fn dump(&self, indent: i32) {
         println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
@@ -87,8 +104,10 @@ impl UIElement for GridColumnDefinitions {
     }
 }
 
-impl GridRowDefinitions {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridRowDefinitions {
+
+
+impl UIAlloc for GridRowDefinitions {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> GridRowDefinitions {
         GridRowDefinitions {
             common: UICommon::new(attributes),
         }
@@ -96,14 +115,22 @@ impl GridRowDefinitions {
 }
 
 impl UIElement for GridRowDefinitions {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
         "Grid_RowDefinitions"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     fn dump(&self, indent: i32) {
         println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
@@ -118,22 +145,32 @@ impl UIElement for GridRowDefinitions {
     }
 }
 
-impl ColumnDefinition {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> ColumnDefinition {
+
+
+impl UIAlloc for ColumnDefinition {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> ColumnDefinition {
         ColumnDefinition {
             common: UICommon::new(attributes),
         }
     }
 }
 impl UIElement for ColumnDefinition {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
         "ColumnDefinition"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     fn dump(&self, indent: i32) {
         println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
@@ -148,22 +185,31 @@ impl UIElement for ColumnDefinition {
     }
 }
 
-impl RowDefinition {
-    pub fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> RowDefinition {
+    
+impl UIAlloc for RowDefinition {
+    fn new(attributes: Vec<xml::attribute::OwnedAttribute>) -> RowDefinition {
         RowDefinition {
             common: UICommon::new(attributes),
         }
     }
 }
 impl UIElement for RowDefinition {
+    fn handle_event(&self, ev: Event) {
+        self.common.handle_event(ev);
+    }
+
+    fn set_parent(&mut self, parent: UIElementRef) {
+        self.common.set_parent(parent);
+    }
+
     fn get_attribute(&self, s: &str) -> Option<String> {
         self.common.get_attribute(s)
     }
     fn get_ui_type_name(&self) -> &'static str {
         "RowDefinition"
     }
-    fn add_child(&mut self, child: UIElementRef) {
-        self.common.add_child(child)
+    fn add_child(&mut self, child: UIElementRef, parent: UIElementRef) {
+        self.common.add_child(child, parent);
     }
     fn dump(&self, indent: i32) {
         println!("{}DUMP: {}", tabs(indent), self.get_ui_type_name());
